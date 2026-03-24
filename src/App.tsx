@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -16,6 +17,7 @@ import Notificacoes from "@/pages/Notificacoes";
 import Calendario from "@/pages/Calendario";
 import Configuracoes from "@/pages/Configuracoes";
 import NotFound from "@/pages/NotFound";
+import Login from "@/pages/Login";
 
 const queryClient = new QueryClient();
 
@@ -41,18 +43,42 @@ const AnimatedRoutes = () => {
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Sonner />
-      <BrowserRouter>
-        <AppShell>
-          <AnimatedRoutes />
-          <BottomNav />
-        </AppShell>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return sessionStorage.getItem("senai-logged-in") === "true";
+  });
+
+  const handleLogin = () => {
+    sessionStorage.setItem("senai-logged-in", "true");
+    setIsLoggedIn(true);
+  };
+
+  if (!isLoggedIn) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Sonner />
+          <AppShell>
+            <Login onLogin={handleLogin} />
+          </AppShell>
+        </TooltipProvider>
+      </QueryClientProvider>
+    );
+  }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Sonner />
+        <BrowserRouter>
+          <AppShell>
+            <AnimatedRoutes />
+            <BottomNav />
+          </AppShell>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
