@@ -2,7 +2,7 @@ export const student = {
   name: "Ellen Cristina Cassol",
   firstName: "Ellen",
   matricula: "2024SI0042",
-  course: "Tecnologia em Sistemas de Informação",
+  course: "Análise e Desenvolvimento de Sistemas",
   semester: "4º Semestre",
   avatar: "",
   xp: 1240,
