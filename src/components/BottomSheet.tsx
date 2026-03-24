@@ -22,10 +22,10 @@ const BottomSheet = ({ open, onClose, title, children }: BottomSheetProps) => {
             onClick={onClose}
           />
           <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 400 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ type: "spring", damping: 25, stiffness: 350 }}
             className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-[400px] bg-card rounded-3xl z-50 max-h-[80vh] overflow-y-auto shadow-xl"
           >
             <div className="flex justify-center pt-3 pb-1">
