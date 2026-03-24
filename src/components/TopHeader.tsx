@@ -69,7 +69,7 @@ const TopHeader = ({ onMenuClick, sidebarCollapsed }: TopHeaderProps) => {
           className="tap-feedback hidden md:flex items-center gap-2 rounded-xl hover:bg-muted px-2 py-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-primary"
         >
           <div className="w-8 h-8 rounded-full gradient-senai flex items-center justify-center text-primary-foreground font-bold text-xs">
-            LM
+            EC
           </div>
           <span className="text-sm font-medium text-foreground">{student.firstName}</span>
         </button>

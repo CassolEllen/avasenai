@@ -56,7 +56,7 @@ const Perfil = () => {
     <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
       <div className="bg-card rounded-2xl p-5 shadow-senai text-center">
         <div className="w-20 h-20 rounded-full gradient-senai flex items-center justify-center text-primary-foreground font-bold text-2xl mx-auto mb-3">
-          LM
+          EC
         </div>
         <h2 className="text-lg font-bold text-foreground">{student.name}</h2>
         <p className="text-xs text-muted-foreground mt-0.5">Matrícula: {student.matricula}</p>

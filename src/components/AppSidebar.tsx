@@ -105,7 +105,7 @@ const AppSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: AppSideb
         )}
         {collapsed && (
           <div className="w-9 h-9 rounded-full gradient-senai flex items-center justify-center text-primary-foreground font-bold text-xs mb-2">
-            LM
+            EC
           </div>
         )}
         {!isMobile && (
