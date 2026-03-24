@@ -278,15 +278,28 @@ export const calendarEvents = [
   { date: "2024-03-29", title: "Entrega Trabalho Eng. Software", type: "trabalho" as const, time: "23:59" },
 ];
 
-export const badges = [
-  { name: "Primeira Entrega", icon: "🎯", earned: true },
-  { name: "Sem Faltas", icon: "✅", earned: true },
-  { name: "Nota 10", icon: "🏆", earned: true },
-  { name: "Maratonista", icon: "🏃", earned: true },
-  { name: "Mentor", icon: "🧑‍🏫", earned: false },
-  { name: "Pesquisador", icon: "🔬", earned: false },
-  { name: "Inovador", icon: "💡", earned: false },
-  { name: "Líder", icon: "👑", earned: false },
+export interface Badge {
+  name: string;
+  icon: string;
+  earned: boolean;
+  description: string;
+  dateEarned?: string;
+  requirement?: string;
+  progressCurrent?: number;
+  progressTotal?: number;
+}
+
+export const badges: Badge[] = [
+  { name: "Primeira Entrega", icon: "🎯", earned: true, description: "Enviou o primeiro trabalho", dateEarned: "18/03/2024" },
+  { name: "Sem Faltas", icon: "✅", earned: true, description: "Frequência 100% em uma matéria", dateEarned: "22/02/2024" },
+  { name: "Nota 10", icon: "🏆", earned: true, description: "Tirou nota máxima em uma avaliação", dateEarned: "10/03/2024" },
+  { name: "Maratonista", icon: "🏃", earned: true, description: "Acessou o app 7 dias seguidos", dateEarned: "15/03/2024" },
+  { name: "Mentor", icon: "🧑‍🏫", earned: false, description: "Respondeu 5 dúvidas no fórum", requirement: "Responda dúvidas no fórum", progressCurrent: 3, progressTotal: 5 },
+  { name: "Explorador", icon: "👾", earned: false, description: "Acessou todas as abas do app", requirement: "Visite todas as seções", progressCurrent: 4, progressTotal: 5 },
+  { name: "Entrega Antecipada", icon: "⚡", earned: false, description: "Enviou um trabalho antes do prazo", requirement: "Envie um trabalho antes da data limite" },
+  { name: "Em Chamas", icon: "🔥", earned: false, description: "3 notas acima de 9 consecutivas", requirement: "Continue tirando notas altas", progressCurrent: 1, progressTotal: 3 },
+  { name: "Matéria Concluída", icon: "🎓", earned: false, description: "Finalizou uma matéria completa", requirement: "Conclua todas as atividades de uma disciplina", progressCurrent: 78, progressTotal: 100 },
+  { name: "Elite", icon: "💎", earned: false, description: "Atingiu o Nível 6", requirement: "Acumule XP para subir de nível", progressCurrent: 4, progressTotal: 6 },
 ];
 
 export const submittedFiles = [

@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Settings, ChevronRight, FileText, Download, CheckCircle, AlertTriangle, Clock } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Settings, ChevronRight, FileText, Download, CheckCircle, AlertTriangle, Clock, Lock } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import ProgressRing from "@/components/ProgressRing";
-import { student, badges, submittedFiles } from "@/data/mockData";
+import BottomSheet from "@/components/BottomSheet";
+import { student, badges, submittedFiles, Badge } from "@/data/mockData";
 import { toast } from "sonner";
 
 const statusConfig = {
@@ -18,14 +20,26 @@ const reports = [
   "Declaração de Matrícula",
 ];
 
+const earnedCount = badges.filter(b => b.earned).length;
+
 const Perfil = () => {
   const navigate = useNavigate();
+  const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const handleReport = (name: string) => {
     toast.loading("Gerando relatório...", { id: name });
     setTimeout(() => {
       toast.success(`${name} baixado com sucesso! ✓`, { id: name });
     }, 2000);
+  };
+
+  const handleBadgeTap = (badge: Badge) => {
+    setSelectedBadge(badge);
+    if (badge.earned) {
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 1500);
+    }
   };
 
   return (
@@ -101,17 +115,58 @@ const Perfil = () => {
         >
           <div className="bg-card rounded-2xl p-5 shadow-senai">
             <h3 className="text-sm font-bold text-foreground mb-3">🏅 Conquistas</h3>
-            <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-1">
-              {badges.map(badge => (
-                <div
+
+            {/* Progress Summary */}
+            <div className="mb-4 bg-muted rounded-xl p-3">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-medium text-foreground">
+                  {earnedCount} de {badges.length} conquistas desbloqueadas
+                </span>
+                <span className="text-[10px] font-bold text-primary">
+                  {Math.round((earnedCount / badges.length) * 100)}%
+                </span>
+              </div>
+              <div className="w-full h-1.5 bg-border rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full rounded-full gradient-senai"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(earnedCount / badges.length) * 100}%` }}
+                  transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
+                />
+              </div>
+            </div>
+
+            {/* 3-Column Badge Grid */}
+            <div className="grid grid-cols-3 gap-3">
+              {badges.map((badge, i) => (
+                <motion.button
                   key={badge.name}
-                  className={`flex-shrink-0 flex flex-col items-center gap-1 ${!badge.earned ? "opacity-30 grayscale" : ""}`}
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.3 + i * 0.05 }}
+                  onClick={() => handleBadgeTap(badge)}
+                  className="tap-feedback flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-muted/50 relative"
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center text-xl">
+                  <div
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl relative transition-all ${
+                      badge.earned
+                        ? "bg-primary/10 shadow-[0_0_16px_hsl(var(--primary)/0.3)]"
+                        : "bg-muted grayscale"
+                    }`}
+                  >
                     {badge.icon}
+                    {!badge.earned && (
+                      <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-muted-foreground/20 flex items-center justify-center">
+                        <Lock size={10} className="text-muted-foreground" />
+                      </div>
+                    )}
                   </div>
-                  <span className="text-[9px] text-muted-foreground text-center w-14 leading-tight">{badge.name}</span>
-                </div>
+                  <span className={`text-[10px] font-medium text-center leading-tight ${
+                    badge.earned ? "text-foreground" : "text-muted-foreground"
+                  }`}>
+                    {badge.name}
+                  </span>
+                </motion.button>
               ))}
             </div>
           </div>
@@ -173,6 +228,105 @@ const Perfil = () => {
           </div>
         </motion.div>
       </div>
+
+      {/* Badge Detail Bottom Sheet */}
+      <BottomSheet
+        open={!!selectedBadge}
+        onClose={() => setSelectedBadge(null)}
+        title="Detalhes da Conquista"
+      >
+        {selectedBadge && (
+          <div className="flex flex-col items-center text-center">
+            {/* Confetti micro-animation */}
+            <AnimatePresence>
+              {showConfetti && selectedBadge.earned && (
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                  {Array.from({ length: 20 }).map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute w-2 h-2 rounded-full"
+                      style={{
+                        left: `${20 + Math.random() * 60}%`,
+                        backgroundColor: ['hsl(var(--primary))', 'hsl(var(--accent))', 'hsl(var(--success))', 'hsl(var(--warning))'][i % 4],
+                      }}
+                      initial={{ y: 0, opacity: 1, scale: 1 }}
+                      animate={{
+                        y: [0, -120 - Math.random() * 80, 200],
+                        x: (Math.random() - 0.5) * 120,
+                        opacity: [1, 1, 0],
+                        scale: [0, 1.2, 0.5],
+                        rotate: Math.random() * 360,
+                      }}
+                      transition={{ duration: 1.2 + Math.random() * 0.5, ease: "easeOut" }}
+                    />
+                  ))}
+                </div>
+              )}
+            </AnimatePresence>
+
+            {/* Large Badge Icon */}
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className={`w-20 h-20 rounded-3xl flex items-center justify-center text-5xl mb-4 ${
+                selectedBadge.earned
+                  ? "bg-primary/10 shadow-[0_0_24px_hsl(var(--primary)/0.35)]"
+                  : "bg-muted grayscale"
+              }`}
+            >
+              {selectedBadge.icon}
+              {!selectedBadge.earned && (
+                <div className="absolute">
+                  <Lock size={20} className="text-muted-foreground/60" />
+                </div>
+              )}
+            </motion.div>
+
+            <h4 className="text-lg font-bold text-foreground mb-1">{selectedBadge.name}</h4>
+            <p className="text-sm text-muted-foreground mb-4">{selectedBadge.description}</p>
+
+            {selectedBadge.earned ? (
+              <motion.div
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="bg-success/10 text-success px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2"
+              >
+                <CheckCircle size={16} />
+                Conquistado em {selectedBadge.dateEarned}
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="w-full"
+              >
+                <p className="text-xs text-muted-foreground mb-3">{selectedBadge.requirement}</p>
+                {selectedBadge.progressCurrent != null && selectedBadge.progressTotal != null && (
+                  <div className="bg-muted rounded-xl p-3">
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="text-[11px] font-medium text-foreground">Progresso</span>
+                      <span className="text-[11px] font-bold text-primary">
+                        {selectedBadge.progressCurrent} de {selectedBadge.progressTotal}
+                      </span>
+                    </div>
+                    <div className="w-full h-2 bg-border rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full rounded-full gradient-senai"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${(selectedBadge.progressCurrent / selectedBadge.progressTotal) * 100}%` }}
+                        transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </div>
+        )}
+      </BottomSheet>
     </PageTransition>
   );
 };
