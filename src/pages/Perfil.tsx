@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, ChevronRight, FileText, Download, CheckCircle, AlertTriangle, Clock, Lock } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import PageTransition from "@/components/PageTransition";
 import ProgressRing from "@/components/ProgressRing";
 import BottomSheet from "@/components/BottomSheet";
@@ -136,39 +137,46 @@ const Perfil = () => {
               </div>
             </div>
 
-            {/* 3-Column Badge Grid */}
-            <div className="grid grid-cols-3 gap-3">
-              {badges.map((badge, i) => (
-                <motion.button
-                  key={badge.name}
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.3 + i * 0.05 }}
-                  onClick={() => handleBadgeTap(badge)}
-                  className="tap-feedback flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-muted/50 relative"
-                >
-                  <div
-                    className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl relative transition-all ${
-                      badge.earned
-                        ? "bg-primary/10 shadow-[0_0_16px_hsl(var(--primary)/0.3)]"
-                        : "bg-muted grayscale"
-                    }`}
-                  >
-                    {badge.icon}
-                    {!badge.earned && (
-                      <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-muted-foreground/20 flex items-center justify-center">
-                        <Lock size={10} className="text-muted-foreground" />
-                      </div>
-                    )}
-                  </div>
-                  <span className={`text-[10px] font-medium text-center leading-tight ${
-                    badge.earned ? "text-foreground" : "text-muted-foreground"
-                  }`}>
-                    {badge.name}
-                  </span>
-                </motion.button>
-              ))}
-            </div>
+            <TooltipProvider delayDuration={300}>
+              <div className="grid grid-cols-3 gap-3">
+                {badges.map((badge, i) => (
+                  <Tooltip key={badge.name}>
+                    <TooltipTrigger asChild>
+                      <motion.button
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.3 + i * 0.05 }}
+                        onClick={() => handleBadgeTap(badge)}
+                        className="tap-feedback flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-muted/50 relative"
+                      >
+                        <div
+                          className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl relative transition-all ${
+                            badge.earned
+                              ? "bg-primary/10 shadow-[0_0_16px_hsl(var(--primary)/0.3)]"
+                              : "bg-muted grayscale"
+                          }`}
+                        >
+                          {badge.icon}
+                          {!badge.earned && (
+                            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-muted-foreground/20 flex items-center justify-center">
+                              <Lock size={10} className="text-muted-foreground" />
+                            </div>
+                          )}
+                        </div>
+                        <span className={`text-[10px] font-medium text-center leading-tight ${
+                          badge.earned ? "text-foreground" : "text-muted-foreground"
+                        }`}>
+                          {badge.name}
+                        </span>
+                      </motion.button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[200px] text-center">
+                      <p className="text-xs">{badge.tooltip}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+              </div>
+            </TooltipProvider>
           </div>
         </motion.div>
 
