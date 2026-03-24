@@ -1,6 +1,6 @@
 export const student = {
-  name: "Lucas Mendes",
-  firstName: "Lucas",
+  name: "Ellen Mendes",
+  firstName: "Ellen",
   matricula: "2024SI0042",
   course: "Tecnologia em Sistemas de Informação",
   semester: "4º Semestre",
