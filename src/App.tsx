@@ -5,6 +5,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AnimatePresence } from "framer-motion";
 import AppShell from "@/components/AppShell";
+import AppSidebar from "@/components/AppSidebar";
+import TopHeader from "@/components/TopHeader";
 import BottomNav from "@/components/BottomNav";
 import Dashboard from "@/pages/Dashboard";
 import Aulas from "@/pages/Aulas";
@@ -18,6 +20,7 @@ import Calendario from "@/pages/Calendario";
 import Configuracoes from "@/pages/Configuracoes";
 import NotFound from "@/pages/NotFound";
 import Login from "@/pages/Login";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +46,36 @@ const AnimatedRoutes = () => {
   );
 };
 
+const AppLayout = () => {
+  const isMobile = useIsMobile();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const sidebarWidth = isMobile ? 0 : sidebarCollapsed ? 72 : 260;
+
+  return (
+    <>
+      <AppSidebar
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
+      <AppShell sidebarWidth={sidebarWidth}>
+        <TopHeader
+          onMenuClick={() => setMobileMenuOpen(true)}
+          sidebarCollapsed={sidebarCollapsed}
+        />
+        <main className="px-4 md:px-8 py-4 md:py-6 pb-24 md:pb-8">
+          <AnimatedRoutes />
+        </main>
+      </AppShell>
+      {/* Mobile bottom nav */}
+      {isMobile && <BottomNav />}
+    </>
+  );
+};
+
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return sessionStorage.getItem("senai-logged-in") === "true";
@@ -58,9 +91,9 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <Sonner />
-          <AppShell>
+          <div className="mx-auto flex min-h-screen max-w-[430px] md:max-w-none flex-col bg-background">
             <Login onLogin={handleLogin} />
-          </AppShell>
+          </div>
         </TooltipProvider>
       </QueryClientProvider>
     );
@@ -69,12 +102,9 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Sonner />
+        <Sonner position="top-right" />
         <BrowserRouter>
-          <AppShell>
-            <AnimatedRoutes />
-            <BottomNav />
-          </AppShell>
+          <AppLayout />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

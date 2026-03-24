@@ -1,7 +1,6 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import PageTransition from "@/components/PageTransition";
-import ScreenHeader from "@/components/ScreenHeader";
 import { messages } from "@/data/mockData";
 
 const MessageDetail = () => {
@@ -11,8 +10,7 @@ const MessageDetail = () => {
 
   return (
     <PageTransition direction="slide">
-      <ScreenHeader title="Mensagem" showBack />
-      <div className="px-4 pt-4 pb-24">
+      <div className="max-w-2xl">
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">

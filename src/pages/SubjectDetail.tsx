@@ -1,9 +1,8 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Download, FileText } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
-import ScreenHeader from "@/components/ScreenHeader";
 import ProgressRing from "@/components/ProgressRing";
 import { subjects, profSubject } from "@/data/mockData";
 
@@ -19,15 +18,9 @@ const SubjectDetail = () => {
 
   return (
     <PageTransition direction="slide">
-      <ScreenHeader title={subject.name} showBack />
-
-      <div className="pb-24 overflow-y-auto">
+      <div className="max-w-2xl">
         {/* Hero */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="px-4 pt-4"
-        >
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
           <div className="gradient-senai rounded-2xl p-6 text-center text-primary-foreground">
             <ProgressRing progress={subject.progress} size={100} strokeWidth={7} className="[&_circle:last-child]:stroke-white [&_span]:text-white" />
             <p className="text-sm font-bold mt-3">{subject.name}</p>
@@ -38,7 +31,7 @@ const SubjectDetail = () => {
         </motion.div>
 
         {/* Tabs */}
-        <div className="px-4 pt-4">
+        <div className="pt-4">
           <div className="flex bg-muted rounded-xl p-1">
             {([["geral", "Visão Geral"], ["notas", "Notas"], ["arquivos", "Arquivos"]] as const).map(([key, label]) => (
               <button
@@ -54,7 +47,7 @@ const SubjectDetail = () => {
           </div>
         </div>
 
-        <div className="px-4 pt-4">
+        <div className="pt-4">
           {tab === "geral" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
               <div className="bg-card rounded-2xl p-4 shadow-senai">
@@ -110,7 +103,7 @@ const SubjectDetail = () => {
                     <p className="text-sm font-medium text-foreground truncate">{f.name}</p>
                     <p className="text-[10px] text-muted-foreground">{f.date}</p>
                   </div>
-                  <button className="tap-feedback p-2">
+                  <button className="tap-feedback p-2 hover:bg-muted rounded-lg transition-colors">
                     <Download size={16} className="text-primary" />
                   </button>
                 </div>
