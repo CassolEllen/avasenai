@@ -2,7 +2,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Moon, Sun, Bell, Type, Lock, Globe, Info } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
-import ScreenHeader from "@/components/ScreenHeader";
 
 const Configuracoes = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -22,12 +21,10 @@ const Configuracoes = () => {
   };
 
   return (
-    <PageTransition direction="slide">
-      <ScreenHeader title="Configurações" showBack />
-
-      <div className="px-4 pt-4 pb-24 space-y-4">
+    <PageTransition>
+      <div className="max-w-2xl space-y-4">
         {/* Theme */}
-        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-card rounded-2xl p-4 shadow-senai">
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-card rounded-2xl p-4 shadow-senai hover:shadow-senai-lg transition-shadow">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {darkMode ? <Moon size={18} className="text-primary" /> : <Sun size={18} className="text-primary" />}
@@ -37,11 +34,7 @@ const Configuracoes = () => {
               </div>
             </div>
             <button onClick={toggleDark} className={`tap-feedback w-12 h-7 rounded-full transition-colors flex items-center px-1 ${darkMode ? "bg-primary" : "bg-muted"}`}>
-              <motion.div
-                className="w-5 h-5 rounded-full bg-card shadow-sm"
-                animate={{ x: darkMode ? 18 : 0 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              />
+              <motion.div className="w-5 h-5 rounded-full bg-card shadow-sm" animate={{ x: darkMode ? 18 : 0 }} transition={{ type: "spring", stiffness: 500, damping: 30 }} />
             </button>
           </div>
         </motion.div>
@@ -54,19 +47,14 @@ const Configuracoes = () => {
           </div>
           {Object.entries(notifications).map(([key, val]) => (
             <div key={key} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-              <span className="text-sm text-foreground capitalize">
+              <span className="text-sm text-foreground">
                 {key === "notas" ? "Novas Notas" : key === "mensagens" ? "Mensagens" : key === "lembretes" ? "Lembretes de Aula" : "Eventos"}
               </span>
               <button
                 onClick={() => setNotifications(p => ({ ...p, [key]: !val }))}
                 className={`tap-feedback w-10 h-6 rounded-full transition-colors flex items-center px-0.5 ${val ? "bg-primary" : "bg-muted"}`}
               >
-                <motion.div
-                  className="w-4.5 h-4.5 rounded-full bg-card shadow-sm"
-                  style={{ width: 18, height: 18 }}
-                  animate={{ x: val ? 16 : 0 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                />
+                <motion.div className="rounded-full bg-card shadow-sm" style={{ width: 18, height: 18 }} animate={{ x: val ? 16 : 0 }} transition={{ type: "spring", stiffness: 500, damping: 30 }} />
               </button>
             </div>
           ))}
@@ -107,12 +95,7 @@ const Configuracoes = () => {
               onClick={() => setHideGrades(!hideGrades)}
               className={`tap-feedback w-10 h-6 rounded-full transition-colors flex items-center px-0.5 ${hideGrades ? "bg-primary" : "bg-muted"}`}
             >
-              <motion.div
-                className="rounded-full bg-card shadow-sm"
-                style={{ width: 18, height: 18 }}
-                animate={{ x: hideGrades ? 16 : 0 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              />
+              <motion.div className="rounded-full bg-card shadow-sm" style={{ width: 18, height: 18 }} animate={{ x: hideGrades ? 16 : 0 }} transition={{ type: "spring", stiffness: 500, damping: 30 }} />
             </button>
           </div>
         </motion.div>

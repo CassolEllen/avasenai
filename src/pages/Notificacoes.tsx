@@ -2,7 +2,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, Check } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
-import ScreenHeader from "@/components/ScreenHeader";
 import { notifications as initialNotifications } from "@/data/mockData";
 
 const groupLabels = { hoje: "Hoje", semana: "Esta semana", anteriores: "Anteriores" };
@@ -33,21 +32,19 @@ const Notificacoes = () => {
   })).filter(g => g.items.length > 0);
 
   return (
-    <PageTransition direction="slide">
-      <ScreenHeader title="Notificações" showBack />
-
-      <div className="px-4 pb-24 pt-2 overflow-y-auto">
+    <PageTransition>
+      <div className="max-w-2xl">
         {groups.map(group => (
           <div key={group.label} className="mb-4">
             <p className="text-xs font-bold text-muted-foreground mb-2">{group.label}</p>
             <AnimatePresence>
-              {group.items.map((n, i) => (
+              {group.items.map((n) => (
                 <motion.div
                   key={n.id}
                   initial={{ x: 0, opacity: 1 }}
                   exit={{ x: -300, opacity: 0 }}
                   layout
-                  className={`bg-card rounded-2xl p-4 shadow-senai mb-2 flex items-start gap-3 ${n.read ? "opacity-60" : ""}`}
+                  className={`bg-card rounded-2xl p-4 shadow-senai mb-2 flex items-start gap-3 hover:shadow-senai-lg transition-shadow ${n.read ? "opacity-60" : ""}`}
                 >
                   <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm ${typeColors[n.type]}`}>
                     {typeIcons[n.type]}
@@ -59,11 +56,11 @@ const Notificacoes = () => {
                   </div>
                   <div className="flex gap-1">
                     {!n.read && (
-                      <button onClick={() => markRead(n.id)} className="tap-feedback p-1.5 rounded-lg bg-muted">
+                      <button onClick={() => markRead(n.id)} className="tap-feedback p-1.5 rounded-lg bg-muted hover:bg-muted/80 transition-colors">
                         <Check size={14} className="text-success" />
                       </button>
                     )}
-                    <button onClick={() => remove(n.id)} className="tap-feedback p-1.5 rounded-lg bg-muted">
+                    <button onClick={() => remove(n.id)} className="tap-feedback p-1.5 rounded-lg bg-muted hover:bg-muted/80 transition-colors">
                       <Trash2 size={14} className="text-destructive" />
                     </button>
                   </div>

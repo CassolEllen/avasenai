@@ -2,13 +2,18 @@ import { ReactNode } from "react";
 
 interface AppShellProps {
   children: ReactNode;
+  sidebarWidth?: number;
 }
 
-const AppShell = ({ children }: AppShellProps) => {
+const AppShell = ({ children, sidebarWidth = 0 }: AppShellProps) => {
   return (
-    <div className="mx-auto flex min-h-screen max-w-[430px] flex-col bg-background relative overflow-hidden"
-         style={{ minHeight: '100dvh' }}>
-      {children}
+    <div
+      className="min-h-screen bg-background transition-all duration-300"
+      style={{ marginLeft: sidebarWidth }}
+    >
+      <div className="mx-auto max-w-[1280px]">
+        {children}
+      </div>
     </div>
   );
 };
