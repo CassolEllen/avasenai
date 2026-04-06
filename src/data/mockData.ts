@@ -303,6 +303,71 @@ export const badges: Badge[] = [
   { name: "Elite", icon: "💎", earned: false, description: "Atingiu o Nível 6", tooltip: "Chegue ao Nível 6 acumulando XP", requirement: "Acumule XP para subir de nível", progressCurrent: 4, progressTotal: 6 },
 ];
 
+export interface Assignment {
+  id: string;
+  title: string;
+  subject: string;
+  professor: string;
+  dueDate: string;
+  dueDateFull: string;
+  status: "pendente" | "enviado" | "atrasado";
+  description: string;
+  instructions: string;
+  attachments: { name: string; size: string }[];
+  submittedFile?: { name: string; size: string; date: string };
+  maxFileSize: string;
+}
+
+export const assignments: Assignment[] = [
+  {
+    id: "a1",
+    title: "Trabalho Prático – Listas Encadeadas",
+    subject: "Estrutura de Dados",
+    professor: "Carlos Souza",
+    dueDate: "01/04/2024",
+    dueDateFull: "01 de Abril de 2024 às 23:59",
+    status: "pendente",
+    description: "Implementar uma lista duplamente encadeada em C com operações de inserção, remoção e busca.",
+    instructions: "1. O trabalho deve ser individual.\n2. Entregar o código fonte (.c e .h) em um arquivo ZIP.\n3. Incluir um relatório PDF com explicação das estruturas utilizadas.\n4. Testar com pelo menos 10 casos de uso.\n5. O código deve compilar sem warnings com gcc -Wall.",
+    attachments: [
+      { name: "Enunciado_Listas.pdf", size: "245 KB" },
+      { name: "Template_Relatorio.docx", size: "58 KB" },
+    ],
+    maxFileSize: "10 MB",
+  },
+  {
+    id: "a2",
+    title: "Projeto de Modelagem ER",
+    subject: "Banco de Dados",
+    professor: "Ana Lima",
+    dueDate: "28/03/2024",
+    dueDateFull: "28 de Março de 2024 às 23:59",
+    status: "enviado",
+    description: "Criar o modelo Entidade-Relacionamento completo para o sistema proposto em aula.",
+    instructions: "1. Utilizar a ferramenta brModelo ou Draw.io.\n2. Incluir todas as entidades, atributos e relacionamentos.\n3. Entregar em formato PDF.\n4. Trabalho em dupla permitido.",
+    attachments: [
+      { name: "Requisitos_Sistema.pdf", size: "180 KB" },
+    ],
+    submittedFile: { name: "Projeto_ER_Ellen.pdf", size: "1.2 MB", date: "26/03/2024" },
+    maxFileSize: "10 MB",
+  },
+  {
+    id: "a3",
+    title: "Relatório de Metodologias Ágeis",
+    subject: "Engenharia de Software",
+    professor: "Roberto Dias",
+    dueDate: "20/03/2024",
+    dueDateFull: "20 de Março de 2024 às 23:59",
+    status: "atrasado",
+    description: "Escrever um relatório comparativo entre Scrum, Kanban e XP aplicados a projetos reais.",
+    instructions: "1. Mínimo de 5 páginas.\n2. Incluir referências bibliográficas (ABNT).\n3. Citar pelo menos 2 casos reais de empresas.\n4. Entregar em formato PDF ou DOCX.",
+    attachments: [
+      { name: "Guia_Relatorio.pdf", size: "120 KB" },
+    ],
+    maxFileSize: "10 MB",
+  },
+];
+
 export const submittedFiles = [
   { subject: "Estrutura de Dados", name: "Trabalho Listas.pdf", date: "20/03/2024", status: "entregue" as const },
   { subject: "Banco de Dados", name: "Projeto ER.pdf", date: "18/03/2024", status: "entregue" as const },

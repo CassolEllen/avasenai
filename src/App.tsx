@@ -18,6 +18,8 @@ import MessageDetail from "@/pages/MessageDetail";
 import Notificacoes from "@/pages/Notificacoes";
 import Calendario from "@/pages/Calendario";
 import Configuracoes from "@/pages/Configuracoes";
+import Atividades from "@/pages/Atividades";
+import AtividadeDetail from "@/pages/AtividadeDetail";
 import NotFound from "@/pages/NotFound";
 import Login from "@/pages/Login";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -36,6 +38,8 @@ const AnimatedRoutes = () => {
         <Route path="/cursos/:type/:id" element={<SubjectDetail />} />
         <Route path="/mensagens" element={<Mensagens />} />
         <Route path="/mensagens/:id" element={<MessageDetail />} />
+        <Route path="/atividades" element={<Atividades />} />
+        <Route path="/atividades/:id" element={<AtividadeDetail />} />
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/notificacoes" element={<Notificacoes />} />
         <Route path="/calendario" element={<Calendario />} />

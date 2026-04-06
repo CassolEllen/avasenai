@@ -76,7 +76,10 @@ const Dashboard = () => {
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.2 + i * 0.1 }}
-                className="bg-card rounded-2xl p-3 md:p-4 shadow-senai text-center hover:shadow-senai-lg transition-shadow cursor-default"
+                onClick={stat.label === "Atividades Pendentes" ? () => navigate("/atividades") : undefined}
+                className={`bg-card rounded-2xl p-3 md:p-4 shadow-senai text-center hover:shadow-senai-lg transition-shadow ${
+                  stat.label === "Atividades Pendentes" ? "cursor-pointer tap-feedback" : "cursor-default"
+                }`}
               >
                 <Icon size={20} className="text-primary mx-auto mb-1" />
                 <p className="text-xl font-bold text-foreground">{stat.value}</p>
