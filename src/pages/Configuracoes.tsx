@@ -22,7 +22,7 @@ const Configuracoes = () => {
 
   return (
     <PageTransition>
-      <div className="max-w-2xl space-y-4">
+      <div className="w-full max-w-3xl space-y-4">
         {/* Theme */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-card rounded-2xl p-4 shadow-senai hover:shadow-senai-lg transition-shadow">
           <div className="flex items-center justify-between">
