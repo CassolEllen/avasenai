@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Home, BookOpen, GraduationCap, MessageSquare, Calendar,
-  Bell, User, Settings, ChevronLeft, ChevronRight, Menu, X, LogOut
+  Bell, User, Settings, ChevronLeft, ChevronRight, Menu, X, LogOut, ClipboardList
 } from "lucide-react";
 import { student } from "@/data/mockData";
 import { useIsMobile } from "@/hooks/use-mobile";
