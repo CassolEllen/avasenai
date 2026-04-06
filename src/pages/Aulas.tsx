@@ -192,7 +192,7 @@ const Aulas = () => {
         </div>
 
         {/* Desktop: right drawer panel */}
-        {!isMobile && (
+        <div className="hidden md:block">
           <AnimatePresence>
             {selected && (
               <motion.div
@@ -212,15 +212,15 @@ const Aulas = () => {
               </motion.div>
             )}
           </AnimatePresence>
-        )}
+        </div>
       </div>
 
       {/* Mobile: bottom sheet */}
-      {isMobile && (
+      <div className="md:hidden">
         <BottomSheet open={!!selected} onClose={() => setSelected(null)} title={selected?.subject}>
           {detailPanel}
         </BottomSheet>
-      )}
+      </div>
     </PageTransition>
   );
 };
