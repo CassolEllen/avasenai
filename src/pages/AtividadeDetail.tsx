@@ -29,6 +29,40 @@ const AtividadeDetail = () => {
   const [submitted, setSubmitted] = useState(assignment?.status === "enviado");
   const [dragOver, setDragOver] = useState(false);
 
+  const handleFileSelect = useCallback((file: File) => {
+    const maxSizeMB = parseInt(assignment?.maxFileSize || "10");
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      toast.error(`Arquivo excede o limite de ${assignment?.maxFileSize}`);
+      return;
+    }
+    setSelectedFile(file);
+  }, [assignment]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileSelect(file);
+  }, [handleFileSelect]);
+
+  const handleSubmit = async () => {
+    if (!selectedFile) {
+      toast.error("Selecione um arquivo para enviar");
+      return;
+    }
+    setUploading(true);
+    await new Promise(r => setTimeout(r, 2000));
+    setUploading(false);
+    setSubmitted(true);
+    toast.success("Trabalho enviado com sucesso! 🎉");
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
   if (!assignment) {
     return (
       <PageTransition>
@@ -44,41 +78,6 @@ const AtividadeDetail = () => {
 
   const status = statusConfig[submitted ? "enviado" : assignment.status];
   const StatusIcon = status.icon;
-
-  const handleFileSelect = (file: File) => {
-    const maxSizeMB = parseInt(assignment.maxFileSize);
-    if (file.size > maxSizeMB * 1024 * 1024) {
-      toast.error(`Arquivo excede o limite de ${assignment.maxFileSize}`);
-      return;
-    }
-    setSelectedFile(file);
-  };
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-    const file = e.dataTransfer.files[0];
-    if (file) handleFileSelect(file);
-  }, []);
-
-  const handleSubmit = async () => {
-    if (!selectedFile) {
-      toast.error("Selecione um arquivo para enviar");
-      return;
-    }
-    setUploading(true);
-    // Simulate upload
-    await new Promise(r => setTimeout(r, 2000));
-    setUploading(false);
-    setSubmitted(true);
-    toast.success("Trabalho enviado com sucesso! 🎉");
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
 
   return (
     <PageTransition>
@@ -160,7 +159,6 @@ const AtividadeDetail = () => {
         <div className="bg-card rounded-2xl p-5 shadow-senai space-y-4">
           <h2 className="text-sm font-bold text-foreground">Enviar Trabalho</h2>
 
-          {/* Already submitted */}
           {submitted && assignment.submittedFile && !selectedFile && (
             <div className="flex items-center gap-3 p-4 rounded-xl bg-success/5 border border-success/20">
               <CheckCircle2 size={20} className="text-success flex-shrink-0" />
