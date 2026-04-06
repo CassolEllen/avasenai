@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Video, ExternalLink, Calendar, X } from "lucide-react";
+import { MapPin, Video, ExternalLink, X } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import { CardSkeleton } from "@/components/Skeleton";
 import { classes, ClassItem } from "@/data/mockData";
-import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
-import BottomSheet from "@/components/BottomSheet";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 const statusColors = {
   agendada: "border-l-primary",
@@ -27,7 +26,6 @@ const statusPillColors = {
 };
 
 const Aulas = () => {
-  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"todas" | "presencial" | "online">("todas");
@@ -191,36 +189,41 @@ const Aulas = () => {
           )}
         </div>
 
-        {/* Desktop: right drawer panel */}
-        <div className="hidden md:block">
-          <AnimatePresence>
-            {selected && (
-              <motion.div
-                initial={{ x: 40, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: 40, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="w-[360px] lg:w-[420px] flex-shrink-0 bg-card rounded-2xl shadow-senai p-6 sticky top-24 self-start max-h-[calc(100vh-8rem)] overflow-y-auto"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-bold text-foreground">{selected.subject}</h3>
-                  <button onClick={() => setSelected(null)} className="tap-feedback p-1 rounded-lg hover:bg-muted">
-                    <X size={18} className="text-muted-foreground" />
-                  </button>
-                </div>
-                {detailPanel}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        {!isMobile && (
+          <div>
+            <AnimatePresence>
+              {selected && (
+                <motion.div
+                  initial={{ x: 40, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: 40, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-[360px] lg:w-[420px] flex-shrink-0 bg-card rounded-2xl shadow-senai p-6 sticky top-24 self-start max-h-[calc(100vh-8rem)] overflow-y-auto"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-foreground">{selected.subject}</h3>
+                    <button onClick={() => setSelected(null)} className="tap-feedback p-1 rounded-lg hover:bg-muted">
+                      <X size={18} className="text-muted-foreground" />
+                    </button>
+                  </div>
+                  {detailPanel}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
 
-      {/* Mobile: bottom sheet */}
-      <div className="md:hidden">
-        <BottomSheet open={!!selected} onClose={() => setSelected(null)} title={selected?.subject}>
-          {detailPanel}
-        </BottomSheet>
-      </div>
+      {isMobile && (
+        <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
+          <DialogContent className="w-[calc(100vw-2rem)] max-w-[420px] max-h-[85vh] gap-0 overflow-y-auto rounded-3xl border bg-card p-0 shadow-xl sm:rounded-3xl">
+            <div className="sticky top-0 z-10 rounded-t-3xl border-b border-border bg-card/95 px-5 py-4 backdrop-blur supports-[backdrop-filter]:bg-card/85">
+              <DialogTitle className="pr-8 text-lg font-bold text-foreground">{selected?.subject}</DialogTitle>
+            </div>
+            <div className="px-5 pb-6 pt-4">{detailPanel}</div>
+          </DialogContent>
+        </Dialog>
+      )}
     </PageTransition>
   );
 };
