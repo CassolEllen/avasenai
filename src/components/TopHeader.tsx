@@ -28,7 +28,7 @@ const TopHeader = ({ onMenuClick, sidebarCollapsed }: TopHeaderProps) => {
 
   return (
     <header
-      className="sticky top-0 z-30 bg-card/80 backdrop-blur-xl border-b border-border h-16 flex items-center px-4 md:px-6 gap-4"
+      className="sticky top-0 z-30 bg-card/80 backdrop-blur-xl border-b border-border h-16 flex items-center px-4 md:px-6 lg:px-8 gap-4"
     >
       {/* Mobile hamburger */}
       {isMobile && (

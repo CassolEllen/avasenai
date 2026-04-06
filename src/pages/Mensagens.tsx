@@ -86,7 +86,7 @@ const Mensagens = () => {
       <PageTransition>
         <div className="flex gap-6 min-h-[calc(100vh-10rem)]">
           {/* Left panel: message list */}
-          <div className="w-[360px] flex-shrink-0 space-y-3">
+          <div className="w-[320px] lg:w-[380px] flex-shrink-0 space-y-3">
             <div className="relative">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <input

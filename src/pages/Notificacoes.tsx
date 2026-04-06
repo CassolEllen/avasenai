@@ -33,7 +33,7 @@ const Notificacoes = () => {
 
   return (
     <PageTransition>
-      <div className="max-w-2xl">
+      <div className="w-full max-w-3xl">
         {groups.map(group => (
           <div key={group.label} className="mb-4">
             <p className="text-xs font-bold text-muted-foreground mb-2">{group.label}</p>

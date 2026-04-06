@@ -238,7 +238,7 @@ const Perfil = () => {
       <PageTransition>
         <div className="flex gap-6">
           {/* Left column: profile card */}
-          <div className="w-[300px] flex-shrink-0">
+          <div className="w-[280px] lg:w-[320px] flex-shrink-0">
             {profileCard}
           </div>
 

@@ -66,7 +66,7 @@ const AppLayout = () => {
           onMenuClick={() => setMobileMenuOpen(true)}
           sidebarCollapsed={sidebarCollapsed}
         />
-        <main className="px-4 md:px-8 py-4 md:py-6 pb-24 md:pb-8">
+        <main className="px-4 md:px-6 lg:px-8 xl:px-10 py-4 md:py-6 pb-24 md:pb-8">
           <AnimatedRoutes />
         </main>
       </AppShell>

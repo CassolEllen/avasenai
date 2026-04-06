@@ -11,7 +11,7 @@ const AppShell = ({ children, sidebarWidth = 0 }: AppShellProps) => {
       className="min-h-screen bg-background transition-all duration-300"
       style={{ marginLeft: sidebarWidth }}
     >
-      <div className="mx-auto max-w-[1280px]">
+      <div className="mx-auto w-full max-w-[1440px]">
         {children}
       </div>
     </div>

@@ -140,7 +140,7 @@ const Calendario = () => {
             {calendarGrid}
             {legend}
           </div>
-          <div className="w-[320px] flex-shrink-0 sticky top-24 self-start">
+          <div className="w-[280px] lg:w-[340px] flex-shrink-0 sticky top-24 self-start">
             {eventsList}
           </div>
         </div>

@@ -200,7 +200,7 @@ const Aulas = () => {
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: 40, opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className="w-[400px] flex-shrink-0 bg-card rounded-2xl shadow-senai p-6 sticky top-24 self-start max-h-[calc(100vh-8rem)] overflow-y-auto"
+                className="w-[360px] lg:w-[420px] flex-shrink-0 bg-card rounded-2xl shadow-senai p-6 sticky top-24 self-start max-h-[calc(100vh-8rem)] overflow-y-auto"
               >
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold text-foreground">{selected.subject}</h3>
