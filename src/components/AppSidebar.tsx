@@ -12,6 +12,7 @@ const navItems = [
   { path: "/", label: "Início", icon: Home },
   { path: "/aulas", label: "Aulas", icon: BookOpen },
   { path: "/cursos", label: "Cursos", icon: GraduationCap },
+  { path: "/atividades", label: "Atividades", icon: ClipboardList },
   { path: "/mensagens", label: "Mensagens", icon: MessageSquare },
   { path: "/calendario", label: "Calendário", icon: Calendar },
   { path: "/notificacoes", label: "Notificações", icon: Bell },
