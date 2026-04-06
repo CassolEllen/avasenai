@@ -18,6 +18,8 @@ import MessageDetail from "@/pages/MessageDetail";
 import Notificacoes from "@/pages/Notificacoes";
 import Calendario from "@/pages/Calendario";
 import Configuracoes from "@/pages/Configuracoes";
+import Atividades from "@/pages/Atividades";
+import AtividadeDetail from "@/pages/AtividadeDetail";
 import NotFound from "@/pages/NotFound";
 import Login from "@/pages/Login";
 import { useIsMobile } from "@/hooks/use-mobile";
