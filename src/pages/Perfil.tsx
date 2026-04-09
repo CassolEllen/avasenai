@@ -222,17 +222,22 @@ const Perfil = () => {
     <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
       <div className="bg-card rounded-2xl p-5 shadow-senai">
         <h3 className="text-sm font-bold text-foreground mb-3">📋 Relatórios</h3>
-        {reports.map(report => (
+        {reportItems.map(item => (
           <button
-            key={report}
-            onClick={() => handleReport(report)}
-            className="tap-feedback w-full flex items-center justify-between py-3 border-b border-border last:border-0 hover:bg-muted/50 transition-colors rounded-lg px-2"
+            key={item.name}
+            onClick={() => handleReport(item)}
+            disabled={downloadingReport === item.name}
+            className="tap-feedback w-full flex items-center justify-between py-3 border-b border-border last:border-0 hover:bg-muted/50 active:bg-muted transition-colors rounded-lg px-2 cursor-pointer disabled:opacity-60"
           >
             <div className="flex items-center gap-2">
               <Download size={14} className="text-primary" />
-              <span className="text-sm text-foreground">{report}</span>
+              <span className="text-sm text-foreground">{item.name}</span>
             </div>
-            <ChevronRight size={16} className="text-muted-foreground" />
+            {downloadingReport === item.name ? (
+              <Loader2 size={16} className="text-primary animate-spin" />
+            ) : (
+              <ChevronRight size={16} className="text-muted-foreground" />
+            )}
           </button>
         ))}
       </div>
