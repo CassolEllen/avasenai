@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, ChevronRight, FileText, Download, CheckCircle, AlertTriangle, Clock, Lock } from "lucide-react";
+import { Settings, ChevronRight, FileText, Download, CheckCircle, AlertTriangle, Clock, Lock, Loader2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import PageTransition from "@/components/PageTransition";
 import ProgressRing from "@/components/ProgressRing";
 import BottomSheet from "@/components/BottomSheet";
 import { student, badges, submittedFiles, Badge } from "@/data/mockData";
+import { generateBoletim, generateHistorico, generateDeclaracao, downloadBlob } from "@/lib/generateReports";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -16,7 +17,11 @@ const statusConfig = {
   pendente: { label: "Pendente", icon: Clock, color: "text-muted-foreground bg-muted" },
 };
 
-const reports = ["Boletim Escolar", "Histórico de Aulas", "Declaração de Matrícula"];
+const reportItems = [
+  { name: "Boletim Escolar", filename: "boletim-escolar.pdf", generator: generateBoletim },
+  { name: "Histórico de Aulas", filename: "historico-de-aulas.pdf", generator: generateHistorico },
+  { name: "Declaração de Matrícula", filename: "declaracao-de-matricula.pdf", generator: generateDeclaracao },
+];
 
 const earnedCount = badges.filter(b => b.earned).length;
 
@@ -35,12 +40,21 @@ const Perfil = () => {
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>("desempenho");
+  const [downloadingReport, setDownloadingReport] = useState<string | null>(null);
 
-  const handleReport = (name: string) => {
-    toast.loading("Gerando relatório...", { id: name });
-    setTimeout(() => {
-      toast.success(`${name} baixado com sucesso! ✓`, { id: name });
-    }, 2000);
+  const handleReport = async (item: typeof reportItems[number]) => {
+    setDownloadingReport(item.name);
+    toast.loading("Gerando relatório...", { id: item.name });
+    try {
+      await new Promise((r) => setTimeout(r, 800));
+      const blob = item.generator();
+      downloadBlob(blob, item.filename);
+      toast.success(`${item.name} baixado com sucesso! ✓`, { id: item.name });
+    } catch {
+      toast.error(`Erro ao gerar ${item.name}. Tente novamente.`, { id: item.name });
+    } finally {
+      setDownloadingReport(null);
+    }
   };
 
   const handleBadgeTap = (badge: Badge) => {
@@ -208,17 +222,22 @@ const Perfil = () => {
     <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
       <div className="bg-card rounded-2xl p-5 shadow-senai">
         <h3 className="text-sm font-bold text-foreground mb-3">📋 Relatórios</h3>
-        {reports.map(report => (
+        {reportItems.map(item => (
           <button
-            key={report}
-            onClick={() => handleReport(report)}
-            className="tap-feedback w-full flex items-center justify-between py-3 border-b border-border last:border-0 hover:bg-muted/50 transition-colors rounded-lg px-2"
+            key={item.name}
+            onClick={() => handleReport(item)}
+            disabled={downloadingReport === item.name}
+            className="tap-feedback w-full flex items-center justify-between py-3 border-b border-border last:border-0 hover:bg-muted/50 active:bg-muted transition-colors rounded-lg px-2 cursor-pointer disabled:opacity-60"
           >
             <div className="flex items-center gap-2">
               <Download size={14} className="text-primary" />
-              <span className="text-sm text-foreground">{report}</span>
+              <span className="text-sm text-foreground">{item.name}</span>
             </div>
-            <ChevronRight size={16} className="text-muted-foreground" />
+            {downloadingReport === item.name ? (
+              <Loader2 size={16} className="text-primary animate-spin" />
+            ) : (
+              <ChevronRight size={16} className="text-muted-foreground" />
+            )}
           </button>
         ))}
       </div>
