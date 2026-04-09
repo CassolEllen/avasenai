@@ -40,12 +40,21 @@ const Perfil = () => {
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>("desempenho");
+  const [downloadingReport, setDownloadingReport] = useState<string | null>(null);
 
-  const handleReport = (name: string) => {
-    toast.loading("Gerando relatório...", { id: name });
-    setTimeout(() => {
-      toast.success(`${name} baixado com sucesso! ✓`, { id: name });
-    }, 2000);
+  const handleReport = async (item: typeof reportItems[number]) => {
+    setDownloadingReport(item.name);
+    toast.loading("Gerando relatório...", { id: item.name });
+    try {
+      await new Promise((r) => setTimeout(r, 800));
+      const blob = item.generator();
+      downloadBlob(blob, item.filename);
+      toast.success(`${item.name} baixado com sucesso! ✓`, { id: item.name });
+    } catch {
+      toast.error(`Erro ao gerar ${item.name}. Tente novamente.`, { id: item.name });
+    } finally {
+      setDownloadingReport(null);
+    }
   };
 
   const handleBadgeTap = (badge: Badge) => {
