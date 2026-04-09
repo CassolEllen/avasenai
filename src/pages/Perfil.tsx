@@ -17,7 +17,11 @@ const statusConfig = {
   pendente: { label: "Pendente", icon: Clock, color: "text-muted-foreground bg-muted" },
 };
 
-const reports = ["Boletim Escolar", "Histórico de Aulas", "Declaração de Matrícula"];
+const reportItems = [
+  { name: "Boletim Escolar", filename: "boletim-escolar.pdf", generator: generateBoletim },
+  { name: "Histórico de Aulas", filename: "historico-de-aulas.pdf", generator: generateHistorico },
+  { name: "Declaração de Matrícula", filename: "declaracao-de-matricula.pdf", generator: generateDeclaracao },
+];
 
 const earnedCount = badges.filter(b => b.earned).length;
 
