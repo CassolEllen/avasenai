@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, ChevronRight, FileText, Download, CheckCircle, AlertTriangle, Clock, Lock } from "lucide-react";
+import { Settings, ChevronRight, FileText, Download, CheckCircle, AlertTriangle, Clock, Lock, Loader2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import PageTransition from "@/components/PageTransition";
 import ProgressRing from "@/components/ProgressRing";
 import BottomSheet from "@/components/BottomSheet";
 import { student, badges, submittedFiles, Badge } from "@/data/mockData";
+import { generateBoletim, generateHistorico, generateDeclaracao, downloadBlob } from "@/lib/generateReports";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 
