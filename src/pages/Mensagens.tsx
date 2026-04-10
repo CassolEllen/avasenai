@@ -111,7 +111,7 @@ const Mensagens = () => {
             </p>
           </div>
           <button
-            onClick={e => { e.stopPropagation(); setDeleteTarget(conv.id); }}
+            onClick={e => { e.stopPropagation(); setDeleteTarget({ id: conv.id, type: "chat" }); }}
             className="p-1.5 rounded-lg hover:bg-destructive/10 transition text-muted-foreground hover:text-destructive flex-shrink-0"
           >
             <Trash2 size={14} />
