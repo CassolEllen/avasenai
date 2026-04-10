@@ -37,7 +37,8 @@ const Mensagens = () => {
   const [search, setSearch] = useState("");
   const [selectedMsg, setSelectedMsg] = useState<Message | null>(null);
   const [openChat, setOpenChat] = useState<Conversation | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; type: "chat" | "message" } | null>(null);
+  const [localMessages, setLocalMessages] = useState<Message[]>(messages);
   const { conversations, deleteConversation } = useChatContext();
 
   useEffect(() => {
