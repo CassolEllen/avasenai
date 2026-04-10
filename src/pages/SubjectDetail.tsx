@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Download, FileText } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import ProgressRing from "@/components/ProgressRing";
+import ProfessorLink from "@/components/ProfessorLink";
 import { subjects, profSubject } from "@/data/mockData";
 
 const SubjectDetail = () => {
@@ -25,7 +26,7 @@ const SubjectDetail = () => {
             <ProgressRing progress={subject.progress} size={100} strokeWidth={7} className="[&_circle:last-child]:stroke-white [&_span]:text-white" />
             <p className="text-sm font-bold mt-3">{subject.name}</p>
             <span className="inline-block text-xs bg-primary-foreground/20 px-3 py-1 rounded-pill mt-1.5">
-              Prof. {subject.professor}
+              <ProfessorLink professorName={subject.professor} className="text-primary-foreground hover:text-primary-foreground/80" />
             </span>
           </div>
         </motion.div>
