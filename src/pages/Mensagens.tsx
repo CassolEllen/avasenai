@@ -190,7 +190,7 @@ const Mensagens = () => {
     <AlertDialog open={!!deleteTarget} onOpenChange={open => !open && setDeleteTarget(null)}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Excluir conversa?</AlertDialogTitle>
+          <AlertDialogTitle>Excluir {deleteTarget?.type === "chat" ? "conversa" : "mensagem"}?</AlertDialogTitle>
           <AlertDialogDescription>
             Esta ação não pode ser desfeita. Todas as mensagens serão removidas permanentemente.
           </AlertDialogDescription>
