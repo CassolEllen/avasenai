@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Video, ExternalLink, X } from "lucide-react";
+import ProfessorLink from "@/components/ProfessorLink";
 import PageTransition from "@/components/PageTransition";
 import { CardSkeleton } from "@/components/Skeleton";
 import { classes, ClassItem } from "@/data/mockData";
@@ -49,7 +50,7 @@ const Aulas = () => {
       </div>
       <div>
         <p className="text-xs text-muted-foreground font-medium mb-1">Professor</p>
-        <p className="text-sm text-foreground">{selected.professor}</p>
+        <ProfessorLink professorName={selected.professor} className="text-sm" />
       </div>
       <div>
         <p className="text-xs text-muted-foreground font-medium mb-1">Horário</p>
@@ -128,7 +129,7 @@ const Aulas = () => {
                           className={`border-b border-border last:border-0 cursor-pointer transition-colors hover:bg-muted/50 ${selected?.id === cls.id ? "bg-primary/5" : ""}`}
                         >
                           <td className="px-4 py-3 font-semibold text-foreground">{cls.subject}</td>
-                          <td className="px-4 py-3 text-muted-foreground">{cls.professor}</td>
+                          <td className="px-4 py-3"><ProfessorLink professorName={cls.professor} className="text-sm text-muted-foreground" /></td>
                           <td className="px-4 py-3 text-muted-foreground">{cls.day} · {cls.time}</td>
                           <td className="px-4 py-3">
                             <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-pill ${
@@ -165,7 +166,7 @@ const Aulas = () => {
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-foreground">{cls.subject}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Prof. {cls.professor}</p>
+                        <div className="text-xs text-muted-foreground mt-0.5"><ProfessorLink professorName={cls.professor} /></div>
                       </div>
                       <span className={`text-[10px] font-medium px-2 py-1 rounded-pill ${statusPillColors[cls.status]}`}>
                         {statusLabels[cls.status]}
