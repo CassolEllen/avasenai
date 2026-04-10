@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AnimatePresence } from "framer-motion";
+import { ChatProvider } from "@/contexts/ChatContext";
 import AppShell from "@/components/AppShell";
 import AppSidebar from "@/components/AppSidebar";
 import TopHeader from "@/components/TopHeader";
@@ -106,10 +107,12 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Sonner position="top-right" />
-        <BrowserRouter>
-          <AppLayout />
-        </BrowserRouter>
+        <ChatProvider>
+          <Sonner position="top-right" />
+          <BrowserRouter>
+            <AppLayout />
+          </BrowserRouter>
+        </ChatProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
