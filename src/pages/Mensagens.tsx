@@ -145,6 +145,12 @@ const Mensagens = () => {
           <p className="text-xs text-muted-foreground mt-1 truncate">{msg.preview}</p>
         </div>
         {msg.unread && <div className="w-2.5 h-2.5 rounded-full bg-primary mt-1 flex-shrink-0" />}
+        <button
+          onClick={e => { e.stopPropagation(); setDeleteTarget({ id: msg.id, type: "message" }); }}
+          className="p-1.5 rounded-lg hover:bg-destructive/10 transition text-muted-foreground hover:text-destructive flex-shrink-0"
+        >
+          <Trash2 size={14} />
+        </button>
       </div>
     </motion.div>
   ));
