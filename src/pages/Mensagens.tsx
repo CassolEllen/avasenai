@@ -37,7 +37,8 @@ const Mensagens = () => {
   const [search, setSearch] = useState("");
   const [selectedMsg, setSelectedMsg] = useState<Message | null>(null);
   const [openChat, setOpenChat] = useState<Conversation | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; type: "chat" | "message" } | null>(null);
+  const [localMessages, setLocalMessages] = useState<Message[]>(messages);
   const { conversations, deleteConversation } = useChatContext();
 
   useEffect(() => {
@@ -45,7 +46,7 @@ const Mensagens = () => {
     return () => clearTimeout(t);
   }, []);
 
-  const filteredMsgs = messages.filter(
+  const filteredMsgs = localMessages.filter(
     m =>
       m.professor.toLowerCase().includes(search.toLowerCase()) ||
       m.subject.toLowerCase().includes(search.toLowerCase())
@@ -56,15 +57,23 @@ const Mensagens = () => {
   );
 
   const handleMsgClick = (msg: Message) => {
+    // Mark as read
+    setLocalMessages(prev => prev.map(m => m.id === msg.id ? { ...m, unread: false } : m));
+    const readMsg = { ...msg, unread: false };
     if (isMobile) navigate(`/mensagens/${msg.id}`);
-    else setSelectedMsg(msg);
+    else setSelectedMsg(readMsg);
   };
 
   const handleDeleteConfirm = () => {
     if (deleteTarget) {
-      deleteConversation(deleteTarget);
-      if (openChat?.id === deleteTarget) setOpenChat(null);
-      toast.success("Conversa excluída");
+      if (deleteTarget.type === "chat") {
+        deleteConversation(deleteTarget.id);
+        if (openChat?.id === deleteTarget.id) setOpenChat(null);
+      } else {
+        setLocalMessages(prev => prev.filter(m => m.id !== deleteTarget.id));
+        if (selectedMsg?.id === deleteTarget.id) setSelectedMsg(null);
+      }
+      toast.success("Mensagem excluída");
       setDeleteTarget(null);
     }
   };
@@ -102,7 +111,7 @@ const Mensagens = () => {
             </p>
           </div>
           <button
-            onClick={e => { e.stopPropagation(); setDeleteTarget(conv.id); }}
+            onClick={e => { e.stopPropagation(); setDeleteTarget({ id: conv.id, type: "chat" }); }}
             className="p-1.5 rounded-lg hover:bg-destructive/10 transition text-muted-foreground hover:text-destructive flex-shrink-0"
           >
             <Trash2 size={14} />
@@ -136,6 +145,12 @@ const Mensagens = () => {
           <p className="text-xs text-muted-foreground mt-1 truncate">{msg.preview}</p>
         </div>
         {msg.unread && <div className="w-2.5 h-2.5 rounded-full bg-primary mt-1 flex-shrink-0" />}
+        <button
+          onClick={e => { e.stopPropagation(); setDeleteTarget({ id: msg.id, type: "message" }); }}
+          className="p-1.5 rounded-lg hover:bg-destructive/10 transition text-muted-foreground hover:text-destructive flex-shrink-0"
+        >
+          <Trash2 size={14} />
+        </button>
       </div>
     </motion.div>
   ));
@@ -175,7 +190,7 @@ const Mensagens = () => {
     <AlertDialog open={!!deleteTarget} onOpenChange={open => !open && setDeleteTarget(null)}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Excluir conversa?</AlertDialogTitle>
+          <AlertDialogTitle>Excluir {deleteTarget?.type === "chat" ? "conversa" : "mensagem"}?</AlertDialogTitle>
           <AlertDialogDescription>
             Esta ação não pode ser desfeita. Todas as mensagens serão removidas permanentemente.
           </AlertDialogDescription>
