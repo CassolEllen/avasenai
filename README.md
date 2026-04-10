@@ -110,7 +110,7 @@ Este projeto foi desenvolvido com fins educacionais, com o objetivo de:
 
 ## 👨‍💻 Desenvolvedores
 
-Projeto desenvolvido com sange, suor e lágrims(essa parte, literalmente) por:
+Projeto desenvolvido com sange, suor e lágrimas(essa parte, literalmente) por:
 
 - 👩 Ellen  
 - 👨 Daniel  
