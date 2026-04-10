@@ -46,7 +46,7 @@ const Mensagens = () => {
     return () => clearTimeout(t);
   }, []);
 
-  const filteredMsgs = messages.filter(
+  const filteredMsgs = localMessages.filter(
     m =>
       m.professor.toLowerCase().includes(search.toLowerCase()) ||
       m.subject.toLowerCase().includes(search.toLowerCase())
@@ -57,15 +57,23 @@ const Mensagens = () => {
   );
 
   const handleMsgClick = (msg: Message) => {
+    // Mark as read
+    setLocalMessages(prev => prev.map(m => m.id === msg.id ? { ...m, unread: false } : m));
+    const readMsg = { ...msg, unread: false };
     if (isMobile) navigate(`/mensagens/${msg.id}`);
-    else setSelectedMsg(msg);
+    else setSelectedMsg(readMsg);
   };
 
   const handleDeleteConfirm = () => {
     if (deleteTarget) {
-      deleteConversation(deleteTarget);
-      if (openChat?.id === deleteTarget) setOpenChat(null);
-      toast.success("Conversa excluída");
+      if (deleteTarget.type === "chat") {
+        deleteConversation(deleteTarget.id);
+        if (openChat?.id === deleteTarget.id) setOpenChat(null);
+      } else {
+        setLocalMessages(prev => prev.filter(m => m.id !== deleteTarget.id));
+        if (selectedMsg?.id === deleteTarget.id) setSelectedMsg(null);
+      }
+      toast.success("Mensagem excluída");
       setDeleteTarget(null);
     }
   };
