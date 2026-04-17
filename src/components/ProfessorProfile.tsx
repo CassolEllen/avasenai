@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Phone, BookOpen, MessageCircle } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
 import type { Professor } from "@/data/professors";
 import ChatPanel from "./ChatPanel";
 import { useChatContext } from "@/contexts/ChatContext";
@@ -13,7 +12,6 @@ interface Props {
 }
 
 const ProfessorProfile = ({ professor, open, onClose }: Props) => {
-  const isMobile = useIsMobile();
   const [showChat, setShowChat] = useState(false);
   const { getOrCreateConversation } = useChatContext();
 
