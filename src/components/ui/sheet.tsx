@@ -58,28 +58,42 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
 
     return (
       <SheetPortal>
-        <SheetOverlay />
-        <SheetPrimitive.Content
-          ref={ref}
-          className={cn(
-            isMobile
-              ? "fixed left-1/2 top-1/2 z-[70] grid w-[calc(100vw-32px)] max-w-[420px] max-h-[85vh] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-3xl border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
-              : sheetVariants({ side }),
-            className,
-          )}
-          style={
-            isMobile
-              ? { paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom, 0px))", ...style }
-              : style
-          }
-          {...props}
-        >
-          {children}
-          <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity data-[state=open]:bg-secondary hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </SheetPrimitive.Close>
-        </SheetPrimitive.Content>
+        {isMobile ? (
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-6">
+            <SheetOverlay />
+            <SheetPrimitive.Content
+              ref={ref}
+              className={cn(
+                "relative z-[70] grid w-[min(480px,calc(100vw-32px))] max-w-[90vw] max-h-[85vh] gap-4 overflow-y-auto rounded-3xl border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+                className,
+              )}
+              style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom, 0px))", ...style }}
+              {...props}
+            >
+              {children}
+              <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity data-[state=open]:bg-secondary hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </SheetPrimitive.Close>
+            </SheetPrimitive.Content>
+          </div>
+        ) : (
+          <>
+            <SheetOverlay />
+            <SheetPrimitive.Content
+              ref={ref}
+              className={cn(sheetVariants({ side }), className)}
+              style={style}
+              {...props}
+            >
+              {children}
+              <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity data-[state=open]:bg-secondary hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </SheetPrimitive.Close>
+            </SheetPrimitive.Content>
+          </>
+        )}
       </SheetPortal>
     );
   },
