@@ -44,7 +44,7 @@ const ChatPanel = ({ conversationId, professorName, open, onClose, onBack }: Pro
     d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className={`fixed inset-0 z-[80] flex ${isMobile ? "" : "items-center justify-center"}`}>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -54,12 +54,13 @@ const ChatPanel = ({ conversationId, professorName, open, onClose, onBack }: Pro
       />
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className={`relative z-10 bg-card rounded-2xl shadow-xl flex flex-col overflow-hidden ${
-          isMobile ? "w-[calc(100vw-32px)] h-[85vh]" : "w-full max-w-lg h-[600px]"
+        initial={isMobile ? { opacity: 0, y: 30 } : { opacity: 0, scale: 0.95 }}
+        animate={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, scale: 1 }}
+        exit={isMobile ? { opacity: 0, y: 30 } : { opacity: 0, scale: 0.95 }}
+        className={`relative z-10 bg-card shadow-xl flex flex-col overflow-hidden ${
+          isMobile ? "w-full h-[100dvh] rounded-none" : "w-full max-w-lg h-[600px] rounded-2xl"
         }`}
+        style={isMobile ? { paddingBottom: "env(safe-area-inset-bottom, 0px)" } : undefined}
       >
         {/* Header */}
         <div className="gradient-senai px-4 py-3 flex items-center gap-3 flex-shrink-0">
