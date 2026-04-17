@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Phone, BookOpen, MessageCircle } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
 import type { Professor } from "@/data/professors";
 import ChatPanel from "./ChatPanel";
 import { useChatContext } from "@/contexts/ChatContext";
@@ -13,7 +12,6 @@ interface Props {
 }
 
 const ProfessorProfile = ({ professor, open, onClose }: Props) => {
-  const isMobile = useIsMobile();
   const [showChat, setShowChat] = useState(false);
   const { getOrCreateConversation } = useChatContext();
 
@@ -47,7 +45,7 @@ const ProfessorProfile = ({ professor, open, onClose }: Props) => {
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -62,9 +60,7 @@ const ProfessorProfile = ({ professor, open, onClose }: Props) => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className={`relative z-10 bg-card rounded-2xl shadow-xl overflow-hidden ${
-              isMobile ? "w-[calc(100vw-32px)] max-h-[85vh]" : "w-full max-w-md max-h-[85vh]"
-            } overflow-y-auto`}
+            className="relative z-10 bg-card rounded-2xl shadow-xl overflow-hidden w-full max-w-md max-h-[85vh] overflow-y-auto"
           >
             {/* Header */}
             <div className="gradient-senai p-6 text-center relative">
