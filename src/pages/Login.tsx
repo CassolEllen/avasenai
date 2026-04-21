@@ -91,7 +91,7 @@ const Login = () => {
     e.preventDefault();
     setError("");
     if (!email.trim() || !password.trim()) {
-      setError("Preencha email e senha para continuar.");
+      setError("Preencha e-mail e senha para continuar.");
       return;
     }
     if (!isInstitutionalEmail(email)) {
@@ -102,18 +102,18 @@ const Login = () => {
       setError("Informe seu nome completo.");
       return;
     }
+    if (mode === "signup" && password.length < 6) {
+      setError("A senha deve ter pelo menos 6 caracteres. Escolha uma senha mais segura.");
+      return;
+    }
     setIsLoading(true);
     if (mode === "signin") {
       const { error: err } = await signIn(email.trim(), password);
       setIsLoading(false);
       if (err) {
-        const lower = err.toLowerCase();
-        if (lower.includes("email not confirmed") || lower.includes("not confirmed")) {
-          setError("Confirme seu e-mail antes de acessar o sistema.");
+        setError(translateAuthError(err, "signin", () => {
           setConfirmationSent(email.trim());
-          return;
-        }
-        setError(err === "Invalid login credentials" ? "Email ou senha incorretos." : err);
+        }));
         return;
       }
       toast.success("Bem-vindo!");
@@ -125,7 +125,7 @@ const Login = () => {
       });
       setIsLoading(false);
       if (err) {
-        setError(err === "User already registered" ? "Este email já está cadastrado." : err);
+        setError(translateAuthError(err, "signup"));
         return;
       }
       if (needsConfirmation) {
