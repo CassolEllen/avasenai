@@ -82,7 +82,7 @@ const Login = () => {
     const { error: err } = await resendConfirmation(confirmationSent);
     setResending(false);
     if (err) {
-      toast.error("Não foi possível reenviar agora. Tente novamente em instantes.");
+      toast.error("Não foi possível reenviar o e-mail de confirmação.");
       return;
     }
     toast.success("Reenviamos o link de confirmação para o seu e-mail.");
