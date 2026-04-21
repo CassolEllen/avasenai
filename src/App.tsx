@@ -24,6 +24,7 @@ import Atividades from "@/pages/Atividades";
 import AtividadeDetail from "@/pages/AtividadeDetail";
 import NotFound from "@/pages/NotFound";
 import Login from "@/pages/Login";
+import EmailConfirmado from "@/pages/EmailConfirmado";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Loader2 } from "lucide-react";
 
@@ -82,6 +83,22 @@ const AppLayout = () => {
 
 const Gate = () => {
   const { user, loading } = useAuth();
+
+  // Public route: email confirmation success page must be accessible
+  // without authentication and must NOT be intercepted by the auth gate.
+  const isEmailConfirmedRoute =
+    typeof window !== "undefined" &&
+    window.location.pathname === "/email-confirmado";
+
+  if (isEmailConfirmedRoute) {
+    return (
+      <BrowserRouter>
+        <Routes>
+          <Route path="/email-confirmado" element={<EmailConfirmado />} />
+        </Routes>
+      </BrowserRouter>
+    );
+  }
 
   if (loading) {
     return (
