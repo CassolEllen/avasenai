@@ -487,6 +487,8 @@ const Login = () => {
                       )}
                     </div>
                   </form>
+                  </>
+                  )}
                 </div>
 
                 <p className="text-center text-xs text-muted-foreground mt-6">SENAI AVA · v1.0.0</p>
