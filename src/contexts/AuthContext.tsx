@@ -23,9 +23,10 @@ interface AuthContextType {
     email: string,
     password: string,
     meta: { name: string; matricula?: string; curso?: string }
-  ) => Promise<{ error: string | null }>;
+  ) => Promise<{ error: string | null; needsConfirmation?: boolean }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  resendConfirmation: (email: string) => Promise<{ error: string | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -81,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signUp: AuthContextType["signUp"] = async (email, password, meta) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -89,7 +90,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         data: meta,
       },
     });
-    return { error: error?.message ?? null };
+    // When email confirmation is required, Supabase returns a user with no session.
+    const needsConfirmation = !error && !!data?.user && !data.session;
+    return { error: error?.message ?? null, needsConfirmation };
   };
 
   const signOut = async () => {
@@ -100,9 +103,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (user) await fetchProfile(user.id);
   };
 
+  const resendConfirmation = async (email: string) => {
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/` },
+    });
+    return { error: error?.message ?? null };
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, session, profile, loading, signIn, signUp, signOut, refreshProfile }}
+      value={{ user, session, profile, loading, signIn, signUp, signOut, refreshProfile, resendConfirmation }}
     >
       {children}
     </AuthContext.Provider>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GraduationCap, ArrowRight, BookOpen, Users, Trophy, Eye, EyeOff, Loader2 } from "lucide-react";
+import { GraduationCap, ArrowRight, BookOpen, Users, Trophy, Eye, EyeOff, Loader2, MailCheck, CheckCircle2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -39,13 +39,29 @@ const Login = () => {
   const [curso, setCurso] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [confirmationSent, setConfirmationSent] = useState<string | null>(null);
+  const [resending, setResending] = useState(false);
   const emailRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, resendConfirmation } = useAuth();
 
   useEffect(() => {
     const t = setTimeout(() => setPhase("onboarding"), 2000);
     return () => clearTimeout(t);
+  }, []);
+
+  // Detect email-confirmation redirect (?confirmed=1 or hash tokens) and surface a success message.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const hash = window.location.hash;
+    const confirmed = url.searchParams.get("confirmed");
+    if (confirmed === "1" || hash.includes("type=signup") || hash.includes("type=email")) {
+      toast.success("E-mail confirmado com sucesso. Agora você pode entrar.");
+      setMode("signin");
+      setPhase("login");
+      // Clean URL
+      window.history.replaceState({}, "", window.location.pathname);
+    }
   }, []);
 
   useEffect(() => {
@@ -58,6 +74,18 @@ const Login = () => {
   };
 
   const emailDomainInvalid = email.trim().length > 0 && !isInstitutionalEmail(email);
+
+  const handleResend = async () => {
+    if (!confirmationSent) return;
+    setResending(true);
+    const { error: err } = await resendConfirmation(confirmationSent);
+    setResending(false);
+    if (err) {
+      toast.error("Não foi possível reenviar agora. Tente novamente em instantes.");
+      return;
+    }
+    toast.success("Reenviamos o link de confirmação para o seu e-mail.");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,12 +107,18 @@ const Login = () => {
       const { error: err } = await signIn(email.trim(), password);
       setIsLoading(false);
       if (err) {
+        const lower = err.toLowerCase();
+        if (lower.includes("email not confirmed") || lower.includes("not confirmed")) {
+          setError("Confirme seu e-mail antes de acessar o sistema.");
+          setConfirmationSent(email.trim());
+          return;
+        }
         setError(err === "Invalid login credentials" ? "Email ou senha incorretos." : err);
         return;
       }
       toast.success("Bem-vindo!");
     } else {
-      const { error: err } = await signUp(email.trim(), password, {
+      const { error: err, needsConfirmation } = await signUp(email.trim(), password, {
         name: name.trim(),
         matricula: matricula.trim(),
         curso: curso.trim(),
@@ -94,8 +128,11 @@ const Login = () => {
         setError(err === "User already registered" ? "Este email já está cadastrado." : err);
         return;
       }
-      toast.success("Conta criada! Verifique seu email para confirmar e depois faça login.");
-      setMode("signin");
+      if (needsConfirmation) {
+        setConfirmationSent(email.trim());
+      } else {
+        toast.success("Conta criada!");
+      }
     }
   };
 
@@ -258,6 +295,49 @@ const Login = () => {
                 className="w-full max-w-[440px] mx-auto"
               >
                 <div className="bg-card rounded-2xl border border-border shadow-lg p-6 sm:p-8 space-y-6">
+                  {confirmationSent ? (
+                    <div className="flex flex-col items-center gap-4 text-center">
+                      <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                        <MailCheck size={28} className="text-primary" />
+                      </div>
+                      <div>
+                        <h1 className="text-xl sm:text-2xl font-bold text-foreground">Confirme seu e-mail</h1>
+                        <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                          Enviamos um link de confirmação para{" "}
+                          <span className="font-medium text-foreground">{confirmationSent}</span>.
+                          Confirme seu e-mail para acessar o sistema.
+                        </p>
+                      </div>
+                      <div className="w-full bg-muted/50 rounded-xl p-3 text-xs text-muted-foreground flex items-start gap-2 text-left">
+                        <CheckCircle2 size={16} className="text-primary mt-0.5 shrink-0" />
+                        <span>Verifique sua caixa de entrada e a pasta de spam. O link abre o app já autenticado.</span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleResend}
+                        disabled={resending}
+                        className="w-full h-11 rounded-xl"
+                      >
+                        {resending ? (
+                          <>
+                            <Loader2 size={16} className="animate-spin mr-2" />
+                            Reenviando...
+                          </>
+                        ) : (
+                          "Reenviar e-mail de confirmação"
+                        )}
+                      </Button>
+                      <button
+                        type="button"
+                        onClick={() => { setConfirmationSent(null); setMode("signin"); setError(""); }}
+                        className="text-sm text-primary font-semibold hover:underline"
+                      >
+                        Voltar para o login
+                      </button>
+                    </div>
+                  ) : (
+                  <>
                   <div className="flex flex-col items-center gap-4">
                     {isMobile && (
                       <div className="w-14 h-14 rounded-2xl gradient-senai flex items-center justify-center shadow-senai-lg">
@@ -407,6 +487,8 @@ const Login = () => {
                       )}
                     </div>
                   </form>
+                  </>
+                  )}
                 </div>
 
                 <p className="text-center text-xs text-muted-foreground mt-6">SENAI AVA · v1.0.0</p>
