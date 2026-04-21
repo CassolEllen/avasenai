@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
-import type { Professor } from "@/data/professors";
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface ChatMessage {
   id: string;
@@ -17,11 +18,17 @@ export interface Conversation {
   lastActivity: Date;
 }
 
+export interface ProfessorLite {
+  id: string;
+  name: string;
+}
+
 interface ChatContextType {
   conversations: Conversation[];
-  getOrCreateConversation: (professor: Professor) => Conversation;
-  sendMessage: (conversationId: string, text: string) => void;
-  deleteConversation: (conversationId: string) => void;
+  loading: boolean;
+  getOrCreateConversation: (professor: ProfessorLite) => Promise<Conversation>;
+  sendMessage: (conversationId: string, text: string) => Promise<void>;
+  deleteConversation: (conversationId: string) => Promise<void>;
   getConversation: (conversationId: string) => Conversation | undefined;
 }
 
@@ -33,75 +40,170 @@ export const useChatContext = () => {
   return ctx;
 };
 
-const professorReplies: Record<string, string[]> = {
-  default: [
-    "Obrigado pela mensagem! Vou verificar e te respondo em breve.",
-    "Recebi sua mensagem. Pode contar comigo!",
-    "Ótima pergunta! Vamos discutir na próxima aula.",
-  ],
-};
-
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const getOrCreateConversation = useCallback((professor: Professor) => {
-    const existing = conversations.find(c => c.professorId === professor.id);
-    if (existing) return existing;
-    const newConv: Conversation = {
-      id: `chat-${professor.id}`,
-      professorId: professor.id,
-      professorName: professor.name,
-      messages: [],
-      lastActivity: new Date(),
-    };
-    setConversations(prev => [newConv, ...prev]);
-    return newConv;
-  }, [conversations]);
+  const loadAll = useCallback(async () => {
+    if (!user) {
+      setConversations([]);
+      return;
+    }
+    setLoading(true);
+    const { data: convs } = await supabase
+      .from("conversations")
+      .select("id, teacher_id, created_at, teachers(name)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
 
-  const sendMessage = useCallback((conversationId: string, text: string) => {
-    const userMsg: ChatMessage = {
-      id: `msg-${Date.now()}`,
-      senderId: "student",
-      text,
-      timestamp: new Date(),
-      type: "sent",
-    };
-    setConversations(prev =>
-      prev.map(c => {
-        if (c.id !== conversationId) return c;
-        return { ...c, messages: [...c.messages, userMsg], lastActivity: new Date() };
-      })
-    );
+    if (!convs) {
+      setLoading(false);
+      return;
+    }
 
-    // Simulate professor reply
-    setTimeout(() => {
-      const replies = professorReplies.default;
-      const replyMsg: ChatMessage = {
-        id: `msg-${Date.now()}-reply`,
-        senderId: conversationId,
-        text: replies[Math.floor(Math.random() * replies.length)],
-        timestamp: new Date(),
-        type: "received",
+    const convIds = convs.map((c: any) => c.id);
+    const { data: msgs } = convIds.length
+      ? await supabase
+          .from("messages")
+          .select("*")
+          .in("conversation_id", convIds)
+          .order("created_at", { ascending: true })
+      : { data: [] as any[] };
+
+    const mapped: Conversation[] = convs.map((c: any) => {
+      const conversationMsgs = (msgs ?? [])
+        .filter((m: any) => m.conversation_id === c.id)
+        .map((m: any) => ({
+          id: m.id,
+          senderId: m.sender_id,
+          text: m.message,
+          timestamp: new Date(m.created_at),
+          type: m.sender_id === user.id ? ("sent" as const) : ("received" as const),
+        }));
+      return {
+        id: c.id,
+        professorId: c.teacher_id,
+        professorName: c.teachers?.name ?? "Professor",
+        messages: conversationMsgs,
+        lastActivity: conversationMsgs.length
+          ? conversationMsgs[conversationMsgs.length - 1].timestamp
+          : new Date(c.created_at),
       };
-      setConversations(prev =>
-        prev.map(c => {
-          if (c.id !== conversationId) return c;
-          return { ...c, messages: [...c.messages, replyMsg], lastActivity: new Date() };
-        })
-      );
-    }, 1500 + Math.random() * 2000);
+    });
+    setConversations(mapped);
+    setLoading(false);
+  }, [user]);
+
+  useEffect(() => {
+    loadAll();
+  }, [loadAll]);
+
+  // Realtime subscription
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel("chat-messages")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        (payload) => {
+          const m: any = payload.new;
+          setConversations((prev) =>
+            prev.map((c) => {
+              if (c.id !== m.conversation_id) return c;
+              if (c.messages.find((x) => x.id === m.id)) return c;
+              return {
+                ...c,
+                messages: [
+                  ...c.messages,
+                  {
+                    id: m.id,
+                    senderId: m.sender_id,
+                    text: m.message,
+                    timestamp: new Date(m.created_at),
+                    type: m.sender_id === user.id ? "sent" : "received",
+                  },
+                ],
+                lastActivity: new Date(m.created_at),
+              };
+            })
+          );
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
+  const getOrCreateConversation: ChatContextType["getOrCreateConversation"] = useCallback(
+    async (professor) => {
+      if (!user) throw new Error("Not authenticated");
+      const existing = conversations.find((c) => c.professorId === professor.id);
+      if (existing) return existing;
+
+      const { data, error } = await supabase
+        .from("conversations")
+        .insert({ user_id: user.id, teacher_id: professor.id })
+        .select("id, teacher_id, created_at")
+        .single();
+
+      if (error || !data) {
+        // Possibly duplicate due to unique constraint — refetch
+        await loadAll();
+        const found = conversations.find((c) => c.professorId === professor.id);
+        if (found) return found;
+        throw error ?? new Error("Falha ao criar conversa");
+      }
+
+      const newConv: Conversation = {
+        id: data.id,
+        professorId: data.teacher_id,
+        professorName: professor.name,
+        messages: [],
+        lastActivity: new Date(data.created_at),
+      };
+      setConversations((prev) => [newConv, ...prev]);
+      return newConv;
+    },
+    [user, conversations, loadAll]
+  );
+
+  const sendMessage = useCallback(
+    async (conversationId: string, text: string) => {
+      if (!user) return;
+      await supabase.from("messages").insert({
+        conversation_id: conversationId,
+        sender_id: user.id,
+        message: text,
+      });
+      // Realtime will push the row; no local optimistic needed (kept simple)
+    },
+    [user]
+  );
+
+  const deleteConversation = useCallback(async (conversationId: string) => {
+    await supabase.from("conversations").delete().eq("id", conversationId);
+    setConversations((prev) => prev.filter((c) => c.id !== conversationId));
   }, []);
 
-  const deleteConversation = useCallback((conversationId: string) => {
-    setConversations(prev => prev.filter(c => c.id !== conversationId));
-  }, []);
-
-  const getConversation = useCallback((conversationId: string) => {
-    return conversations.find(c => c.id === conversationId);
-  }, [conversations]);
+  const getConversation = useCallback(
+    (conversationId: string) => conversations.find((c) => c.id === conversationId),
+    [conversations]
+  );
 
   return (
-    <ChatContext.Provider value={{ conversations, getOrCreateConversation, sendMessage, deleteConversation, getConversation }}>
+    <ChatContext.Provider
+      value={{
+        conversations,
+        loading,
+        getOrCreateConversation,
+        sendMessage,
+        deleteConversation,
+        getConversation,
+      }}
+    >
       {children}
     </ChatContext.Provider>
   );
