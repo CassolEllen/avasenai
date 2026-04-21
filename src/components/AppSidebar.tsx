@@ -40,7 +40,10 @@ const AppSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: AppSideb
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { profile, user } = useAuth();
+  const { profile, user, signOut } = useAuth();
+  const queryClient = useQueryClient();
+  const [signingOut, setSigningOut] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const displayName = getDisplayName(profile, user?.email);
   const initials = getInitials(profile, user?.email);
   const courseLabel = profile?.curso?.trim() || "Estudante";
@@ -48,6 +51,27 @@ const AppSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: AppSideb
   const handleNav = (path: string) => {
     navigate(path);
     if (isMobile) onMobileClose();
+  };
+
+  const handleSignOut = async () => {
+    setSigningOut(true);
+    try {
+      await signOut();
+      queryClient.clear();
+      try {
+        sessionStorage.clear();
+      } catch {
+        /* ignore */
+      }
+      toast.success("Sessão encerrada.");
+      // Gate component will swap to <Login /> automatically when user becomes null.
+    } catch (err) {
+      toast.error("Não foi possível sair. Tente novamente.");
+    } finally {
+      setSigningOut(false);
+      setConfirmOpen(false);
+      if (isMobile) onMobileClose();
+    }
   };
 
   const sidebarContent = (
