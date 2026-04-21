@@ -3,11 +3,19 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Home, BookOpen, GraduationCap, MessageSquare, Calendar,
-  Bell, User, Settings, ChevronLeft, ChevronRight, Menu, X, LogOut, ClipboardList
+  Bell, User, Settings, ChevronLeft, ChevronRight, Menu, X, LogOut, ClipboardList, Loader2
 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { getDisplayName, getInitials } from "@/lib/userDisplay";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
   { path: "/", label: "Início", icon: Home },
@@ -32,7 +40,10 @@ const AppSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: AppSideb
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { profile, user } = useAuth();
+  const { profile, user, signOut } = useAuth();
+  const queryClient = useQueryClient();
+  const [signingOut, setSigningOut] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const displayName = getDisplayName(profile, user?.email);
   const initials = getInitials(profile, user?.email);
   const courseLabel = profile?.curso?.trim() || "Estudante";
@@ -40,6 +51,27 @@ const AppSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: AppSideb
   const handleNav = (path: string) => {
     navigate(path);
     if (isMobile) onMobileClose();
+  };
+
+  const handleSignOut = async () => {
+    setSigningOut(true);
+    try {
+      await signOut();
+      queryClient.clear();
+      try {
+        sessionStorage.clear();
+      } catch {
+        /* ignore */
+      }
+      toast.success("Sessão encerrada.");
+      // Gate component will swap to <Login /> automatically when user becomes null.
+    } catch (err) {
+      toast.error("Não foi possível sair. Tente novamente.");
+    } finally {
+      setSigningOut(false);
+      setConfirmOpen(false);
+      if (isMobile) onMobileClose();
+    }
   };
 
   const sidebarContent = (
@@ -103,16 +135,78 @@ const AppSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: AppSideb
             <div className="w-9 h-9 rounded-full gradient-senai flex items-center justify-center text-primary-foreground font-bold text-xs flex-shrink-0">
               {initials}
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold text-foreground truncate">{displayName}</p>
               <p className="text-[10px] text-muted-foreground truncate">{courseLabel}</p>
             </div>
+            <Popover open={confirmOpen} onOpenChange={setConfirmOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Sair"
+                  className="tap-feedback w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors flex-shrink-0"
+                  title="Sair"
+                >
+                  <LogOut size={16} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent side="top" align="end" className="w-64 p-3">
+                <p className="text-sm font-medium text-foreground">Tem certeza que deseja sair?</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Sua sessão será encerrada neste dispositivo.
+                </p>
+                <div className="flex justify-end gap-2 mt-3">
+                  <Button variant="ghost" size="sm" onClick={() => setConfirmOpen(false)} disabled={signingOut}>
+                    Cancelar
+                  </Button>
+                  <Button variant="destructive" size="sm" onClick={handleSignOut} disabled={signingOut}>
+                    {signingOut ? (
+                      <><Loader2 size={14} className="animate-spin mr-1.5" />Saindo...</>
+                    ) : (
+                      <><LogOut size={14} className="mr-1.5" />Sair</>
+                    )}
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         )}
         {collapsed && (
-          <div className="w-9 h-9 rounded-full gradient-senai flex items-center justify-center text-primary-foreground font-bold text-xs mb-2">
-            {initials}
-          </div>
+          <>
+            <div className="w-9 h-9 rounded-full gradient-senai flex items-center justify-center text-primary-foreground font-bold text-xs mb-2">
+              {initials}
+            </div>
+            <Popover open={confirmOpen} onOpenChange={setConfirmOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Sair"
+                  className="tap-feedback w-9 h-9 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                  title="Sair"
+                >
+                  <LogOut size={16} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent side="right" align="end" className="w-64 p-3">
+                <p className="text-sm font-medium text-foreground">Tem certeza que deseja sair?</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Sua sessão será encerrada neste dispositivo.
+                </p>
+                <div className="flex justify-end gap-2 mt-3">
+                  <Button variant="ghost" size="sm" onClick={() => setConfirmOpen(false)} disabled={signingOut}>
+                    Cancelar
+                  </Button>
+                  <Button variant="destructive" size="sm" onClick={handleSignOut} disabled={signingOut}>
+                    {signingOut ? (
+                      <><Loader2 size={14} className="animate-spin mr-1.5" />Saindo...</>
+                    ) : (
+                      <><LogOut size={14} className="mr-1.5" />Sair</>
+                    )}
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </>
         )}
         {!isMobile && (
           <button
