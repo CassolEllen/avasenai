@@ -1,7 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Search, Bell, Menu } from "lucide-react";
-import { student } from "@/data/mockData";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/contexts/AuthContext";
+import { getFirstName, getInitials } from "@/lib/userDisplay";
 
 const pageTitles: Record<string, string> = {
   "/": "Início",
@@ -23,6 +24,9 @@ const TopHeader = ({ onMenuClick, sidebarCollapsed }: TopHeaderProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { profile, user } = useAuth();
+  const firstName = getFirstName(profile, user?.email);
+  const initials = getInitials(profile, user?.email);
 
   const title = pageTitles[location.pathname] || "SENAI AVA";
 
@@ -69,9 +73,9 @@ const TopHeader = ({ onMenuClick, sidebarCollapsed }: TopHeaderProps) => {
           className="tap-feedback hidden md:flex items-center gap-2 rounded-xl hover:bg-muted px-2 py-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-primary"
         >
           <div className="w-8 h-8 rounded-full gradient-senai flex items-center justify-center text-primary-foreground font-bold text-xs">
-            EC
+            {initials}
           </div>
-          <span className="text-sm font-medium text-foreground">{student.firstName}</span>
+          <span className="text-sm font-medium text-foreground">{firstName}</span>
         </button>
       </div>
     </header>

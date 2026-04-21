@@ -10,6 +10,8 @@ import { student, badges, submittedFiles, Badge } from "@/data/mockData";
 import { generateBoletim, generateHistorico, generateDeclaracao, downloadBlob } from "@/lib/generateReports";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/contexts/AuthContext";
+import { getDisplayName, getInitials } from "@/lib/userDisplay";
 
 const statusConfig = {
   entregue: { label: "Entregue", icon: CheckCircle, color: "text-success bg-success/10" },
@@ -37,6 +39,11 @@ type TabKey = typeof tabOptions[number]["key"];
 const Perfil = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { profile, user } = useAuth();
+  const displayName = getDisplayName(profile, user?.email);
+  const initials = getInitials(profile, user?.email);
+  const matriculaLabel = profile?.matricula?.trim() || student.matricula;
+  const courseLabel = profile?.curso?.trim() || student.course;
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>("desempenho");
@@ -70,13 +77,13 @@ const Perfil = () => {
     <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
       <div className="bg-card rounded-2xl p-5 shadow-senai text-center">
         <div className="w-20 h-20 rounded-full gradient-senai flex items-center justify-center text-primary-foreground font-bold text-2xl mx-auto mb-3">
-          EC
+          {initials}
         </div>
-        <h2 className="text-lg font-bold text-foreground">{student.name}</h2>
-        <p className="text-xs text-muted-foreground mt-0.5">Matrícula: {student.matricula}</p>
+        <h2 className="text-lg font-bold text-foreground">{displayName}</h2>
+        <p className="text-xs text-muted-foreground mt-0.5">Matrícula: {matriculaLabel}</p>
         <div className="mt-2 inline-block">
           <span className="text-[10px] font-medium bg-primary/10 text-primary px-3 py-1 rounded-pill">
-            {student.course} · {student.semester}
+            {courseLabel} · {student.semester}
           </span>
         </div>
         {!isMobile && (

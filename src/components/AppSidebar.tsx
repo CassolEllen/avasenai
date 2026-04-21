@@ -5,8 +5,9 @@ import {
   Home, BookOpen, GraduationCap, MessageSquare, Calendar,
   Bell, User, Settings, ChevronLeft, ChevronRight, Menu, X, LogOut, ClipboardList
 } from "lucide-react";
-import { student } from "@/data/mockData";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/contexts/AuthContext";
+import { getDisplayName, getInitials } from "@/lib/userDisplay";
 
 const navItems = [
   { path: "/", label: "Início", icon: Home },
@@ -31,6 +32,10 @@ const AppSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: AppSideb
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { profile, user } = useAuth();
+  const displayName = getDisplayName(profile, user?.email);
+  const initials = getInitials(profile, user?.email);
+  const courseLabel = profile?.curso?.trim() || "Estudante";
 
   const handleNav = (path: string) => {
     navigate(path);
@@ -96,17 +101,17 @@ const AppSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: AppSideb
         {!collapsed && (
           <div className="flex items-center gap-3 px-2 py-2 mb-2">
             <div className="w-9 h-9 rounded-full gradient-senai flex items-center justify-center text-primary-foreground font-bold text-xs flex-shrink-0">
-              EC
+              {initials}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-foreground truncate">{student.name}</p>
-              <p className="text-[10px] text-muted-foreground truncate">{student.course}</p>
+              <p className="text-sm font-semibold text-foreground truncate">{displayName}</p>
+              <p className="text-[10px] text-muted-foreground truncate">{courseLabel}</p>
             </div>
           </div>
         )}
         {collapsed && (
           <div className="w-9 h-9 rounded-full gradient-senai flex items-center justify-center text-primary-foreground font-bold text-xs mb-2">
-            EC
+            {initials}
           </div>
         )}
         {!isMobile && (
