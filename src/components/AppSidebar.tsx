@@ -3,11 +3,19 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Home, BookOpen, GraduationCap, MessageSquare, Calendar,
-  Bell, User, Settings, ChevronLeft, ChevronRight, Menu, X, LogOut, ClipboardList
+  Bell, User, Settings, ChevronLeft, ChevronRight, Menu, X, LogOut, ClipboardList, Loader2
 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { getDisplayName, getInitials } from "@/lib/userDisplay";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
   { path: "/", label: "Início", icon: Home },
