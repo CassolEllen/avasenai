@@ -295,6 +295,49 @@ const Login = () => {
                 className="w-full max-w-[440px] mx-auto"
               >
                 <div className="bg-card rounded-2xl border border-border shadow-lg p-6 sm:p-8 space-y-6">
+                  {confirmationSent ? (
+                    <div className="flex flex-col items-center gap-4 text-center">
+                      <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                        <MailCheck size={28} className="text-primary" />
+                      </div>
+                      <div>
+                        <h1 className="text-xl sm:text-2xl font-bold text-foreground">Confirme seu e-mail</h1>
+                        <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                          Enviamos um link de confirmação para{" "}
+                          <span className="font-medium text-foreground">{confirmationSent}</span>.
+                          Confirme seu e-mail para acessar o sistema.
+                        </p>
+                      </div>
+                      <div className="w-full bg-muted/50 rounded-xl p-3 text-xs text-muted-foreground flex items-start gap-2 text-left">
+                        <CheckCircle2 size={16} className="text-primary mt-0.5 shrink-0" />
+                        <span>Verifique sua caixa de entrada e a pasta de spam. O link abre o app já autenticado.</span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleResend}
+                        disabled={resending}
+                        className="w-full h-11 rounded-xl"
+                      >
+                        {resending ? (
+                          <>
+                            <Loader2 size={16} className="animate-spin mr-2" />
+                            Reenviando...
+                          </>
+                        ) : (
+                          "Reenviar e-mail de confirmação"
+                        )}
+                      </Button>
+                      <button
+                        type="button"
+                        onClick={() => { setConfirmationSent(null); setMode("signin"); setError(""); }}
+                        className="text-sm text-primary font-semibold hover:underline"
+                      >
+                        Voltar para o login
+                      </button>
+                    </div>
+                  ) : (
+                  <>
                   <div className="flex flex-col items-center gap-4">
                     {isMobile && (
                       <div className="w-14 h-14 rounded-2xl gradient-senai flex items-center justify-center shadow-senai-lg">
