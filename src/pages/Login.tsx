@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GraduationCap, ArrowRight, BookOpen, Users, Trophy, Eye, EyeOff, Loader2 } from "lucide-react";
+import { GraduationCap, ArrowRight, BookOpen, Users, Trophy, Eye, EyeOff, Loader2, MailCheck, CheckCircle2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
