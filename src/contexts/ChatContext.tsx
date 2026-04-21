@@ -140,19 +140,34 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const getOrCreateConversation: ChatContextType["getOrCreateConversation"] = useCallback(
     async (professor) => {
       if (!user) throw new Error("Not authenticated");
-      const existing = conversations.find((c) => c.professorId === professor.id);
+
+      // Resolve teacher UUID: if id looks like UUID use it, otherwise lookup by name
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        professor.id
+      );
+      let teacherId = professor.id;
+      if (!isUuid) {
+        const { data: t } = await supabase
+          .from("teachers")
+          .select("id")
+          .eq("name", professor.name)
+          .maybeSingle();
+        if (!t) throw new Error("Professor não encontrado no sistema");
+        teacherId = t.id;
+      }
+
+      const existing = conversations.find((c) => c.professorId === teacherId);
       if (existing) return existing;
 
       const { data, error } = await supabase
         .from("conversations")
-        .insert({ user_id: user.id, teacher_id: professor.id })
+        .insert({ user_id: user.id, teacher_id: teacherId })
         .select("id, teacher_id, created_at")
         .single();
 
       if (error || !data) {
-        // Possibly duplicate due to unique constraint — refetch
         await loadAll();
-        const found = conversations.find((c) => c.professorId === professor.id);
+        const found = conversations.find((c) => c.professorId === teacherId);
         if (found) return found;
         throw error ?? new Error("Falha ao criar conversa");
       }
