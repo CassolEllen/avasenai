@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import { assignments } from "@/data/mockData";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 const statusConfig = {
@@ -21,6 +23,7 @@ const AtividadeDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user } = useAuth();
 
   const assignment = assignments.find(a => a.id === id);
 
@@ -46,15 +49,38 @@ const AtividadeDetail = () => {
   }, [handleFileSelect]);
 
   const handleSubmit = async () => {
-    if (!selectedFile) {
+    if (!selectedFile || !assignment) {
       toast.error("Selecione um arquivo para enviar");
       return;
     }
+    if (!user) {
+      toast.error("Você precisa estar logado");
+      return;
+    }
     setUploading(true);
-    await new Promise(r => setTimeout(r, 2000));
-    setUploading(false);
-    setSubmitted(true);
-    toast.success("Trabalho enviado com sucesso! 🎉");
+    try {
+      const ext = selectedFile.name.split(".").pop();
+      const path = `${user.id}/${assignment.id}/${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("submissions")
+        .upload(path, selectedFile, { upsert: true });
+      if (upErr) throw upErr;
+
+      // Save submission record (best-effort: only if activity id is a UUID in DB)
+      await supabase.from("submissions").insert({
+        activity_id: assignment.id,
+        student_id: user.id,
+        file_url: path,
+      });
+
+      setSubmitted(true);
+      setSelectedFile(null);
+      toast.success("Trabalho enviado com sucesso! 🎉");
+    } catch (err: any) {
+      toast.error(err.message ?? "Falha ao enviar arquivo");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const formatFileSize = (bytes: number) => {
