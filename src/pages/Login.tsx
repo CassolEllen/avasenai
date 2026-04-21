@@ -39,13 +39,29 @@ const Login = () => {
   const [curso, setCurso] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [confirmationSent, setConfirmationSent] = useState<string | null>(null);
+  const [resending, setResending] = useState(false);
   const emailRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, resendConfirmation } = useAuth();
 
   useEffect(() => {
     const t = setTimeout(() => setPhase("onboarding"), 2000);
     return () => clearTimeout(t);
+  }, []);
+
+  // Detect email-confirmation redirect (?confirmed=1 or hash tokens) and surface a success message.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const hash = window.location.hash;
+    const confirmed = url.searchParams.get("confirmed");
+    if (confirmed === "1" || hash.includes("type=signup") || hash.includes("type=email")) {
+      toast.success("E-mail confirmado com sucesso. Agora você pode entrar.");
+      setMode("signin");
+      setPhase("login");
+      // Clean URL
+      window.history.replaceState({}, "", window.location.pathname);
+    }
   }, []);
 
   useEffect(() => {
@@ -58,6 +74,18 @@ const Login = () => {
   };
 
   const emailDomainInvalid = email.trim().length > 0 && !isInstitutionalEmail(email);
+
+  const handleResend = async () => {
+    if (!confirmationSent) return;
+    setResending(true);
+    const { error: err } = await resendConfirmation(confirmationSent);
+    setResending(false);
+    if (err) {
+      toast.error("Não foi possível reenviar agora. Tente novamente em instantes.");
+      return;
+    }
+    toast.success("Reenviamos o link de confirmação para o seu e-mail.");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,12 +107,18 @@ const Login = () => {
       const { error: err } = await signIn(email.trim(), password);
       setIsLoading(false);
       if (err) {
+        const lower = err.toLowerCase();
+        if (lower.includes("email not confirmed") || lower.includes("not confirmed")) {
+          setError("Confirme seu e-mail antes de acessar o sistema.");
+          setConfirmationSent(email.trim());
+          return;
+        }
         setError(err === "Invalid login credentials" ? "Email ou senha incorretos." : err);
         return;
       }
       toast.success("Bem-vindo!");
     } else {
-      const { error: err } = await signUp(email.trim(), password, {
+      const { error: err, needsConfirmation } = await signUp(email.trim(), password, {
         name: name.trim(),
         matricula: matricula.trim(),
         curso: curso.trim(),
@@ -94,8 +128,11 @@ const Login = () => {
         setError(err === "User already registered" ? "Este email já está cadastrado." : err);
         return;
       }
-      toast.success("Conta criada! Verifique seu email para confirmar e depois faça login.");
-      setMode("signin");
+      if (needsConfirmation) {
+        setConfirmationSent(email.trim());
+      } else {
+        toast.success("Conta criada!");
+      }
     }
   };
 
