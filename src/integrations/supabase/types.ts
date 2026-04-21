@@ -126,6 +126,7 @@ export type Database = {
           created_at: string
           curso: string | null
           email: string | null
+          has_seen_onboarding: boolean
           id: string
           level: number
           matricula: string | null
@@ -138,6 +139,7 @@ export type Database = {
           created_at?: string
           curso?: string | null
           email?: string | null
+          has_seen_onboarding?: boolean
           id: string
           level?: number
           matricula?: string | null
@@ -150,6 +152,7 @@ export type Database = {
           created_at?: string
           curso?: string | null
           email?: string | null
+          has_seen_onboarding?: boolean
           id?: string
           level?: number
           matricula?: string | null
