@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { isInstitutionalEmail, INVALID_DOMAIN_MESSAGE, ALLOWED_EMAIL_DOMAIN } from "@/lib/userDisplay";
 
 const onboardingSlides = [
   {
@@ -27,7 +28,8 @@ const onboardingSlides = [
 
 const Login = () => {
   const [phase, setPhase] = useState<"splash" | "onboarding" | "login">("splash");
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  // First access defaults to account creation; existing users can switch to sign-in.
+  const [mode, setMode] = useState<"signin" | "signup">("signup");
   const [slideIndex, setSlideIndex] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -55,11 +57,17 @@ const Login = () => {
     else setPhase("login");
   };
 
+  const emailDomainInvalid = email.trim().length > 0 && !isInstitutionalEmail(email);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (!email.trim() || !password.trim()) {
       setError("Preencha email e senha para continuar.");
+      return;
+    }
+    if (!isInstitutionalEmail(email)) {
+      setError(INVALID_DOMAIN_MESSAGE);
       return;
     }
     if (mode === "signup" && !name.trim()) {
@@ -262,8 +270,8 @@ const Login = () => {
                       </h1>
                       <p className="text-sm text-muted-foreground mt-1">
                         {mode === "signin"
-                          ? "Entre com seu email para continuar"
-                          : "Preencha seus dados para começar"}
+                          ? "Entre com seu e-mail institucional"
+                          : "Use seu e-mail @estudante.sesisenai.org.br"}
                       </p>
                     </div>
                   </div>
@@ -304,16 +312,22 @@ const Login = () => {
                     )}
 
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-foreground">Email</label>
+                      <label className="text-sm font-medium text-foreground">E-mail institucional</label>
                       <Input
                         ref={emailRef}
                         type="email"
-                        placeholder="seu@email.com"
+                        placeholder={`nome@${ALLOWED_EMAIL_DOMAIN}`}
                         value={email}
                         onChange={(e) => { setEmail(e.target.value); setError(""); }}
-                        className="h-12 rounded-xl bg-muted/50 border-border focus:border-primary"
+                        className={`h-12 rounded-xl bg-muted/50 focus:border-primary ${
+                          emailDomainInvalid ? "border-destructive" : "border-border"
+                        }`}
                         autoComplete="email"
+                        aria-invalid={emailDomainInvalid}
                       />
+                      {emailDomainInvalid && (
+                        <p className="text-xs text-destructive mt-1">{INVALID_DOMAIN_MESSAGE}</p>
+                      )}
                     </div>
 
                     <div className="space-y-1.5">
@@ -368,18 +382,7 @@ const Login = () => {
                     </Button>
 
                     <div className="text-center text-sm text-muted-foreground">
-                      {mode === "signin" ? (
-                        <>
-                          Não tem conta?{" "}
-                          <button
-                            type="button"
-                            onClick={() => { setMode("signup"); setError(""); }}
-                            className="text-primary font-semibold hover:underline"
-                          >
-                            Cadastre-se
-                          </button>
-                        </>
-                      ) : (
+                      {mode === "signup" ? (
                         <>
                           Já tem conta?{" "}
                           <button
@@ -388,6 +391,17 @@ const Login = () => {
                             className="text-primary font-semibold hover:underline"
                           >
                             Entrar
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          Primeiro acesso?{" "}
+                          <button
+                            type="button"
+                            onClick={() => { setMode("signup"); setError(""); }}
+                            className="text-primary font-semibold hover:underline"
+                          >
+                            Criar conta
                           </button>
                         </>
                       )}

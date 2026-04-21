@@ -6,11 +6,15 @@ import PageTransition from "@/components/PageTransition";
 import { student, quickStats, classes, subjects, messages } from "@/data/mockData";
 import { CardSkeleton } from "@/components/Skeleton";
 import ProgressRing from "@/components/ProgressRing";
+import { useAuth } from "@/contexts/AuthContext";
+import { getFirstName } from "@/lib/userDisplay";
 
 const iconMap = { BookOpen, ClipboardList, TrendingUp };
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { profile, user } = useAuth();
+  const firstName = getFirstName(profile, user?.email);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,8 +51,8 @@ const Dashboard = () => {
         >
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-xs md:text-sm opacity-80">Bom dia 👋 · Nível {student.level}</p>
-              <p className="text-xl md:text-2xl font-bold">{student.firstName} – {student.levelTitle} 🏅</p>
+              <p className="text-xs md:text-sm opacity-80">Bom dia, {firstName} 👋 · Nível {student.level}</p>
+              <p className="text-xl md:text-2xl font-bold">{firstName} – {student.levelTitle} 🏅</p>
             </div>
             <div className="text-right">
               <p className="text-2xl md:text-3xl font-extrabold">{student.xp}</p>
