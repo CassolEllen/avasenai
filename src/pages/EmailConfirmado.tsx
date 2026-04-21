@@ -79,15 +79,19 @@ const EmailConfirmado = () => {
               transition={{ type: "spring", stiffness: 260, damping: 18, delay: 0.15 }}
               className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center"
             >
-              <CheckCircle2 size={44} className="text-primary" strokeWidth={2.2} />
+              {error ? (
+                <AlertCircle size={44} className="text-destructive" strokeWidth={2.2} />
+              ) : (
+                <CheckCircle2 size={44} className="text-primary" strokeWidth={2.2} />
+              )}
             </motion.div>
 
             <div className="space-y-2">
               <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground">
-                E-mail confirmado com sucesso
+                {error ? "Link de confirmação inválido" : "E-mail confirmado com sucesso"}
               </h1>
               <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-                Agora você já pode acessar o AVA com seu e-mail institucional e senha.
+                {error ?? "Agora você já pode acessar o AVA."}
               </p>
             </div>
 
