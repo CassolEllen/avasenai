@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GraduationCap, ArrowRight, BookOpen, Users, Trophy, Eye, EyeOff, Loader2, MailCheck, CheckCircle2 } from "lucide-react";
+import { GraduationCap, Eye, EyeOff, Loader2, MailCheck, CheckCircle2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -28,10 +28,8 @@ const onboardingSlides = [
 ];
 
 const Login = () => {
-  const [phase, setPhase] = useState<"splash" | "onboarding" | "login">("splash");
   // First access defaults to account creation; existing users can switch to sign-in.
   const [mode, setMode] = useState<"signin" | "signup">("signup");
-  const [slideIndex, setSlideIndex] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,11 +44,6 @@ const Login = () => {
   const isMobile = useIsMobile();
   const { signIn, signUp, resendConfirmation } = useAuth();
 
-  useEffect(() => {
-    const t = setTimeout(() => setPhase("onboarding"), 2000);
-    return () => clearTimeout(t);
-  }, []);
-
   // Detect email-confirmation redirect (?confirmed=1 or hash tokens) and surface a success message.
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -59,20 +52,14 @@ const Login = () => {
     if (confirmed === "1" || hash.includes("type=signup") || hash.includes("type=email")) {
       toast.success("E-mail confirmado com sucesso. Agora você pode entrar.");
       setMode("signin");
-      setPhase("login");
       // Clean URL
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
 
   useEffect(() => {
-    if (phase === "login") setTimeout(() => emailRef.current?.focus(), 400);
-  }, [phase]);
-
-  const handleNext = () => {
-    if (slideIndex < onboardingSlides.length - 1) setSlideIndex(slideIndex + 1);
-    else setPhase("login");
-  };
+    setTimeout(() => emailRef.current?.focus(), 400);
+  }, []);
 
   const emailDomainInvalid = email.trim().length > 0 && !isInstitutionalEmail(email);
 
