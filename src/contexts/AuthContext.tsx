@@ -12,6 +12,7 @@ export interface Profile {
   avatar_url: string | null;
   xp: number;
   level: number;
+  has_seen_onboarding: boolean;
 }
 
 interface AuthContextType {

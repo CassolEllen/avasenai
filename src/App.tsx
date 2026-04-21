@@ -24,6 +24,7 @@ import Atividades from "@/pages/Atividades";
 import AtividadeDetail from "@/pages/AtividadeDetail";
 import NotFound from "@/pages/NotFound";
 import Login from "@/pages/Login";
+import Onboarding from "@/pages/Onboarding";
 import EmailConfirmado from "@/pages/EmailConfirmado";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Loader2 } from "lucide-react";
@@ -82,7 +83,7 @@ const AppLayout = () => {
 };
 
 const Gate = () => {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
 
   // Public route: email confirmation success page must be accessible
   // without authentication and must NOT be intercepted by the auth gate.
@@ -114,6 +115,20 @@ const Gate = () => {
         <Login />
       </div>
     );
+  }
+
+  // Wait for profile to load before deciding onboarding state.
+  if (!profile) {
+    return (
+      <div className="min-h-[100dvh] flex items-center justify-center bg-background">
+        <Loader2 className="animate-spin text-primary" size={32} />
+      </div>
+    );
+  }
+
+  // First-time access after signup: show the onboarding tour once.
+  if (!profile.has_seen_onboarding) {
+    return <Onboarding />;
   }
 
   return (
