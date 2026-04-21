@@ -32,11 +32,11 @@ const ChatPanel = ({ conversationId, professorName, open, onClose, onBack }: Pro
 
   if (!open) return null;
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const trimmed = text.trim();
     if (!trimmed) return;
-    sendMessage(conversationId, trimmed);
     setText("");
+    await sendMessage(conversationId, trimmed);
   };
 
   const initials = professorName.split(" ").map(n => n[0]).join("");

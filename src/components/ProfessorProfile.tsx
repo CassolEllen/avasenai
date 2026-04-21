@@ -14,27 +14,29 @@ interface Props {
 
 const ProfessorProfile = ({ professor, open, onClose }: Props) => {
   const [showChat, setShowChat] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const { getOrCreateConversation } = useChatContext();
 
   if (!open) return null;
 
   const initials = professor.name.split(" ").map(n => n[0]).join("");
 
-  const handleStartChat = () => {
-    getOrCreateConversation(professor);
+  const handleStartChat = async () => {
+    const conv = await getOrCreateConversation({ id: professor.id, name: professor.name });
+    setConversationId(conv.id);
     setShowChat(true);
   };
 
   const handleCloseAll = () => {
     setShowChat(false);
+    setConversationId(null);
     onClose();
   };
 
-  if (showChat) {
-    const conv = getOrCreateConversation(professor);
+  if (showChat && conversationId) {
     return (
       <ChatPanel
-        conversationId={conv.id}
+        conversationId={conversationId}
         professorName={professor.name}
         open={true}
         onClose={handleCloseAll}

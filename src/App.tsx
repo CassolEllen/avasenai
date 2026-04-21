@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AnimatePresence } from "framer-motion";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ChatProvider } from "@/contexts/ChatContext";
 import AppShell from "@/components/AppShell";
 import AppSidebar from "@/components/AppSidebar";
@@ -24,12 +25,12 @@ import AtividadeDetail from "@/pages/AtividadeDetail";
 import NotFound from "@/pages/NotFound";
 import Login from "@/pages/Login";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Loader2 } from "lucide-react";
 
 const queryClient = new QueryClient();
 
 const AnimatedRoutes = () => {
   const location = useLocation();
-
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
@@ -55,7 +56,6 @@ const AppLayout = () => {
   const isMobile = useIsMobile();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   const sidebarWidth = isMobile ? 0 : sidebarCollapsed ? 72 : 260;
 
   return (
@@ -75,47 +75,48 @@ const AppLayout = () => {
           <AnimatedRoutes />
         </main>
       </AppShell>
-      {/* Mobile bottom nav */}
       {isMobile && <BottomNav />}
     </>
   );
 };
 
-const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return sessionStorage.getItem("senai-logged-in") === "true";
-  });
+const Gate = () => {
+  const { user, loading } = useAuth();
 
-  const handleLogin = () => {
-    sessionStorage.setItem("senai-logged-in", "true");
-    setIsLoggedIn(true);
-  };
-
-  if (!isLoggedIn) {
+  if (loading) {
     return (
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Sonner />
-          <div className="mx-auto flex min-h-screen max-w-[430px] md:max-w-none flex-col bg-background">
-            <Login onLogin={handleLogin} />
-          </div>
-        </TooltipProvider>
-      </QueryClientProvider>
+      <div className="min-h-[100dvh] flex items-center justify-center bg-background">
+        <Loader2 className="animate-spin text-primary" size={32} />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="mx-auto flex min-h-screen max-w-[430px] md:max-w-none flex-col bg-background">
+        <Login />
+      </div>
     );
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <ChatProvider>
-          <Sonner position="top-right" />
-          <BrowserRouter>
-            <AppLayout />
-          </BrowserRouter>
-        </ChatProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ChatProvider>
+      <BrowserRouter>
+        <AppLayout />
+      </BrowserRouter>
+    </ChatProvider>
   );
 };
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <AuthProvider>
+        <Sonner position="top-right" />
+        <Gate />
+      </AuthProvider>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;

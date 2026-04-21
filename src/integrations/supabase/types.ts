@@ -14,13 +14,257 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activities: {
+        Row: {
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          subject_id: string | null
+          teacher_id: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          subject_id?: string | null
+          teacher_id?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          subject_id?: string | null
+          teacher_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activities_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          teacher_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          teacher_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          teacher_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          message: string
+          sender_id: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          message: string
+          sender_id: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          message?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          curso: string | null
+          email: string | null
+          id: string
+          level: number
+          matricula: string | null
+          name: string | null
+          updated_at: string
+          xp: number
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          curso?: string | null
+          email?: string | null
+          id: string
+          level?: number
+          matricula?: string | null
+          name?: string | null
+          updated_at?: string
+          xp?: number
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          curso?: string | null
+          email?: string | null
+          id?: string
+          level?: number
+          matricula?: string | null
+          name?: string | null
+          updated_at?: string
+          xp?: number
+        }
+        Relationships: []
+      }
+      subjects: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          progress: number
+          teacher_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          progress?: number
+          teacher_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          progress?: number
+          teacher_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subjects_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      submissions: {
+        Row: {
+          activity_id: string
+          created_at: string
+          feedback: string | null
+          file_url: string | null
+          grade: number | null
+          id: string
+          student_id: string
+        }
+        Insert: {
+          activity_id: string
+          created_at?: string
+          feedback?: string | null
+          file_url?: string | null
+          grade?: number | null
+          id?: string
+          student_id: string
+        }
+        Update: {
+          activity_id?: string
+          created_at?: string
+          feedback?: string | null
+          file_url?: string | null
+          grade?: number | null
+          id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submissions_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teachers: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      user_owns_conversation: {
+        Args: { _conv_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
