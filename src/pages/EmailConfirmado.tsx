@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, GraduationCap, ArrowRight, Loader2 } from "lucide-react";
+import { CheckCircle2, GraduationCap, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -11,20 +11,38 @@ import { supabase } from "@/integrations/supabase/client";
  */
 const EmailConfirmado = () => {
   const [ready, setReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Supabase places tokens in the URL hash on confirmation. We sign out
-    // immediately so the user lands on the login screen instead of being
-    // auto-authenticated, and we clean the URL.
+    // Auth redirects can return a PKCE code in the query string or tokens in
+    // the URL hash. Process them inside the AVA app, then clear the session so
+    // the student logs in normally after seeing the success message.
     const finalize = async () => {
       try {
+        const url = new URL(window.location.href);
+        const code = url.searchParams.get("code");
+
+        if (code) {
+          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(window.location.href);
+          if (exchangeError) throw exchangeError;
+        } else if (window.location.hash.includes("access_token")) {
+          const params = new URLSearchParams(window.location.hash.slice(1));
+          const access_token = params.get("access_token");
+          const refresh_token = params.get("refresh_token");
+
+          if (access_token && refresh_token) {
+            const { error: sessionError } = await supabase.auth.setSession({ access_token, refresh_token });
+            if (sessionError) throw sessionError;
+          }
+        }
+
         await supabase.auth.signOut();
+        window.history.replaceState({}, "", "/email-confirmado");
       } catch {
-        // ignore
+        setError("Não foi possível validar este link. Solicite um novo e-mail de confirmação.");
+      } finally {
+        setReady(true);
       }
-      // Strip hash/query from the URL for a clean address bar.
-      window.history.replaceState({}, "", "/email-confirmado");
-      setReady(true);
     };
     finalize();
   }, []);
@@ -61,15 +79,19 @@ const EmailConfirmado = () => {
               transition={{ type: "spring", stiffness: 260, damping: 18, delay: 0.15 }}
               className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center"
             >
-              <CheckCircle2 size={44} className="text-primary" strokeWidth={2.2} />
+              {error ? (
+                <AlertCircle size={44} className="text-destructive" strokeWidth={2.2} />
+              ) : (
+                <CheckCircle2 size={44} className="text-primary" strokeWidth={2.2} />
+              )}
             </motion.div>
 
             <div className="space-y-2">
               <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground">
-                E-mail confirmado com sucesso
+                {error ? "Link de confirmação inválido" : "E-mail confirmado com sucesso"}
               </h1>
               <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-                Agora você já pode acessar o AVA com seu e-mail institucional e senha.
+                {error ?? "Agora você já pode acessar o AVA."}
               </p>
             </div>
 
