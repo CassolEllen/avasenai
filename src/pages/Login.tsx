@@ -7,6 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { isInstitutionalEmail, INVALID_DOMAIN_MESSAGE, ALLOWED_EMAIL_DOMAIN } from "@/lib/userDisplay";
+import { translateAuthError } from "@/lib/authErrors";
 
 const onboardingSlides = [
   {
