@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { AVA_AUTH_REDIRECT_URL } from "@/lib/authRedirect";
 
 export interface Profile {
   id: string;
@@ -86,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/email-confirmado`,
+        emailRedirectTo: AVA_AUTH_REDIRECT_URL,
         data: meta,
       },
     });
@@ -107,7 +108,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { error } = await supabase.auth.resend({
       type: "signup",
       email,
-      options: { emailRedirectTo: `${window.location.origin}/email-confirmado` },
+      options: { emailRedirectTo: AVA_AUTH_REDIRECT_URL },
     });
     return { error: error?.message ?? null };
   };
